@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Application } from '../interfaces/application.interface';
-import { CounsellorInvoice } from '../interfaces/counsellor-invoice.interface';
 
 @Injectable()
 export class JusticeApplicationDataService {
@@ -15,25 +13,9 @@ export class JusticeApplicationDataService {
 
   constructor(private http: HttpClient) { }
 
-  public submitApplication(application: Application) {
-    return this.http.post(this.apiPath + 'saveapplication', application, { headers: this.headers });
-  }
-
-  public submitCounsellorInvoice(counsellorInvoice: CounsellorInvoice) {
-    return this.http.post(this.apiPath + 'submitcounsellorinvoice', counsellorInvoice, { headers: this.headers });
-  }
-
   public submitRestitutionApplication(restitution: any) {
     return this.http.post(this.apiPath + 'submitrestitution', restitution, { headers: this.headers });
   }
-
-  // public submitVictimRestitutionApplication(victimRestitution: VictimRestitution) {
-  //   return this.http.post(this.apiPath + 'submitvictimrestitution', victimRestitution, { headers: this.headers });
-  // }
-
-  // public submitOffenderRestitutionApplication(offenderRestitution: OffenderRestitution) {
-  //   return this.http.post(this.apiPath + 'submitoffenderrestitution', offenderRestitution, { headers: this.headers });
-  // }
 
   public validateVendor(vendorNumber, vendorPostalCode) {
     return this.http.get<string>(`${this.apiPath}validate_vendor/${vendorNumber}/${vendorPostalCode}`, { headers: this.headers });
