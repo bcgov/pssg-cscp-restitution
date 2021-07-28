@@ -8,16 +8,18 @@ import { RestitutionSuccessComponent } from './shared/restitution/success/restit
 const routes: Routes = [
   {
     path: '',
+    // component: RestitutionApplicationComponent,
+    // data: { formType: ResitutionForm.Victim }
+    redirectTo: '/victim',
+    pathMatch: 'full'
+  },
+  {
+    path: 'victim',
     component: RestitutionApplicationComponent,
     data: { formType: ResitutionForm.Victim }
   },
   {
-    path: 'victim-restitution',
-    component: RestitutionApplicationComponent,
-    data: { formType: ResitutionForm.Victim }
-  },
-  {
-    path: 'offender-restitution',
+    path: 'offender',
     component: RestitutionApplicationComponent,
     data: { formType: ResitutionForm.Offender }
   },

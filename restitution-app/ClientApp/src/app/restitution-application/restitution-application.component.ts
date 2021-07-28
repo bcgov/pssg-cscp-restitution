@@ -1,11 +1,10 @@
-import { AEMService } from '../services/aem.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApplicationType, IOptionSetVal, MY_FORMATS } from '../shared/enums-list';
 import { CancelDialog } from '../shared/dialogs/cancel/cancel.dialog';
-import { Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { FormBase } from "../shared/form-base";
-import { FormBuilder, Validators, FormGroup, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { JusticeApplicationDataService } from '../services/justice-application-data.service';
 import { LookupService } from '../services/lookup.service';
 import { MatSnackBar, MatDialog, MatVerticalStepper } from '@angular/material';
@@ -15,7 +14,6 @@ import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { StateService } from '../services/state.service';
 import { config } from '../../config';
 import { iLookupData } from '../interfaces/lookup-data.interface';
-import { HeaderTitleService } from '../services/titile.service';
 import { convertRestitutionToCRM } from './restitution.to.crm';
 import { iRestitutionApplication } from '../interfaces/restitution.interface';
 
@@ -36,7 +34,7 @@ export enum RESTITUTION_PAGES {
         { provide: STEPPER_GLOBAL_OPTIONS, useValue: { showError: true } },
     ],
 })
-export class RestitutionApplicationComponent extends FormBase implements OnInit, OnDestroy {
+export class RestitutionApplicationComponent extends FormBase implements OnInit {
     @ViewChild('stepper') restitutionStepper: MatVerticalStepper;
     FORM_TYPE: IOptionSetVal = { val: -1, name: '' };
     ApplicationType = ApplicationType;
@@ -66,14 +64,8 @@ export class RestitutionApplicationComponent extends FormBase implements OnInit,
         private matDialog: MatDialog,
         public state: StateService,
         public lookupService: LookupService,
-        private aemService: AEMService,
-        private headerTitleService: HeaderTitleService,
     ) {
         super();
-    }
-
-    ngOnDestroy() {
-        this.headerTitleService.setTitle("Crime Victim Assistance Program");
     }
 
     ngOnInit() {
@@ -83,7 +75,6 @@ export class RestitutionApplicationComponent extends FormBase implements OnInit,
         if (form_type) {
             this.FORM_TYPE = form_type;
         }
-        this.headerTitleService.setTitle("Restitution Program");
 
         if (this.state.cloning) {
             this.form = this.cloneForm(this.state.data);
