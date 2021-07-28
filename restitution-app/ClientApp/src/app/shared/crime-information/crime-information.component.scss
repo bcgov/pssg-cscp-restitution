@@ -1,0 +1,121 @@
+h3 span {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+}
+
+h2,
+h3 {
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+textarea.form-control {
+  &.standard {
+    width: 75%;
+    height: 100px;
+  }
+
+  &.bigger {
+    width: 75%;
+    height: 200px;
+  }
+}
+
+input.form-control {
+  &.standard {
+    width: 50%;
+  }
+
+  &.date-picker {
+    width: 200px;
+    background-color: #fff;
+  }
+
+  &.bigger {
+    width: 75%;
+  }
+}
+
+.label {
+  font-size: 16px;
+  font-weight: normal;
+  color: #000;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  margin-left: -8px;
+}
+
+.police-file-table .date-picker {
+  max-width: 105px !important;
+  width: 105px;
+}
+
+.police-file-table input,
+.police-file-table select {
+  width: 100%;
+}
+
+.remove-police-report-link {
+  display: flex;
+}
+
+.police-file-table th,
+.police-file-table td {
+  padding: 0.45rem;
+}
+
+.input-error {
+  border: 1px solid red;
+}
+
+.remove-location-button {
+  margin-left: 10px;
+}
+
+.date-container {
+  display: flex;
+}
+
+.start-date-container {
+  width: 49%;
+  margin-right: 10px;
+}
+
+.end-date-container {
+  width: 49%;
+}
+
+.end-date-span {
+  display: flex;
+}
+
+.tick-span {
+  margin-right: 10px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  width: 50%;
+}
+
+.additional-offender-info {
+  background-color: #e9ecef;
+  border-radius: 0.3rem;
+  padding: 5px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.remove-button {
+  text-align: right;
+  padding-right: 15px;
+}
