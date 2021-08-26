@@ -19,7 +19,7 @@ namespace Gov.Cscp.VictimServices.Public.ViewModels
         public string vsd_applicantslastname { get; set; }
         public string vsd_otherfirstname { get; set; }
         public string vsd_otherlastname { get; set; }
-        public int vsd_applicantsgendercode { get; set; }
+        public int? vsd_applicantsgendercode { get; set; }
         public DateTime? vsd_applicantsbirthdate { get; set; }
         public int? vsd_indigenous { get; set; }
         public int? vsd_applicantspreferredmethodofcontact { get; set; }

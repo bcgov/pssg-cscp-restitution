@@ -59,16 +59,22 @@
                 <app-date-field [control]="form.get('birthDate')" [max]="today" [disabled]="isDisabled"></app-date-field>
             </app-field>
         </div>
+    </div>
+    
+    <div class="attention">
+        <p>Please note that your answers to questions about demographic information (e.g. gender, Indigenous identity) allow the Community Safety and Crime Prevention branch to better understand who accesses our programs so we may continue to improve our service delivery. Your response is voluntary and the information you provide does not impact your ability to access these services.</p>
+    </div>
 
-        <div class="col flex-col">
-            <app-field label="Gender" [required]="true" [valid]="isMyControlValid(form.get('gender'))" errorMessage="Please select your gender" [disabled]="isDisabled">
+    <div class="row">
+        <div class="col-md-6">
+            <app-field label="Gender" [required]="false" [valid]="isMyControlValid(form.get('gender'))" errorMessage="Please select your gender" [disabled]="isDisabled">
                 <label class="inline-label">
                     <input type="radio" [value]="enum.CRMGender.Male.val" name="gender" formControlName="gender">
-                    <span>M</span>
+                    <span>M <app-tool-tip [trigger]="genderMToolTip"></app-tool-tip></span>
                 </label>
                 <label class="inline-label">
                     <input type="radio" [value]="enum.CRMGender.Female.val" name="gender" formControlName="gender">
-                    <span>F</span>
+                    <span>F <app-tool-tip [trigger]="genderFToolTip"></app-tool-tip></span>
                 </label>
                 <label class="inline-label">
                     <input type="radio" [value]="enum.CRMGender.X.val" name="gender" formControlName="gender">
@@ -76,9 +82,12 @@
                 </label>
             </app-field>
         </div>
-        <ng-template #genderXToolTip>Use this category if you do not wish to report gender as exclusively male or female.</ng-template>
     </div>
 
+    <ng-template #genderMToolTip>Persons whose current gender is male. This includes cisgender and transgender persons who are male.</ng-template>
+    <ng-template #genderFToolTip>Persons whose current gender is female. This includes cisgender and transgender persons who are female.</ng-template>
+    <ng-template #genderXToolTip>Persons whose current gender is not exclusively male or female. It includes people who are unsure of their gender, do not have one gender, have no gender, are gender fluid, or are Two-Spirit.</ng-template>
+    
     <div class="row">
         <div class="col-md-6">
             <app-field label="Do you identify as an Indigenous person?" [required]="true" [valid]="isMyControlValid(form.get('indigenousStatus'))" errorMessage="Please select an option">
@@ -218,7 +227,7 @@
 
                 <div class="row">
                     <div class="col-md-4">
-                        <app-field label="Relationship to the Offender" [valid]="isMyControlValid(item.get('relationship'))" errorMessage="Please enter relationship" [disabled]="isDisabled">
+                        <app-field label="Relationship to the Offender" [valid]="isMyControlValid(item.get('relationship'))" errorMessage="Please enter relationship" [disabled]="isDisabled" [tooltipReference]="relationshipToAccusedToolTip">
                             <select class="form-control" formControlName="relationship">
                                 <option value="">Select...</option>
                                 <option *ngFor="let rel of relationshipList" [value]="rel">{{ rel }} </option>
@@ -329,3 +338,60 @@
         </div>
     </app-field>
 </div>
+
+<ng-template #relationshipToAccusedToolTip>
+    <table class="table relationship-table">
+        <thead>
+            <tr>
+                <th>Classification</th>
+                <th class="description-column">Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    Intimate Partner Relationship
+                </td>
+                <td>
+                    Refers to current and former spouses (legally married, separated, divorced and common-law), and dating partners.
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    Other Family Relationship
+                </td>
+                <td>
+                    Refers to parents (biological, step, adoptive and foster), children (biological, step, adopted and foster), siblings (biological, step, half, adopted and foster) and extended family members (e.g., grandparents, uncles, aunts, cousins and in-laws).
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    Acquaintance
+                </td>
+                <td>
+                    Refers to friends, neighbours, authority figures, business relationships, casual acquaintances.
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    Stranger
+                </td>
+                <td>
+                    Refers to individuals who do not know one another.
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    Other Victim-Accused Relationship
+                </td>
+                <td>
+                    Refers to relationships that are other than the above categories, or is unknown.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</ng-template>

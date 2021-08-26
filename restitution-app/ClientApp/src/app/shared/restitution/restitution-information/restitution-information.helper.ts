@@ -16,7 +16,7 @@ export class RestitutionInfoHelper {
             otherLastName: [''],
 
             birthDate: ['', [Validators.required]],
-            gender: [0, [Validators.required, Validators.min(100000000), Validators.max(100000002)]],
+            gender: [null],
             indigenousStatus: [0, [Validators.required, Validators.min(100000000), Validators.max(100000004)]],
 
             authorizeDesignate: ['', Validators.required],
