@@ -1,6 +1,6 @@
 import { iCRMApplication, iCRMCourtInfo, iCRMParticipant, iRestitutionCRM } from "../interfaces/dynamics/crm-restitution";
 import { iRestitutionApplication, iCourtFile, iDocument } from "../interfaces/restitution.interface";
-import { ApplicationType, CRMBoolean, EnumHelper } from "../shared/enums-list";
+import { ApplicationType, CRMBoolean, EnumHelper, ResitutionForm } from "../shared/enums-list";
 
 
 export function convertRestitutionToCRM(application: iRestitutionApplication) {
@@ -29,7 +29,7 @@ export function convertRestitutionToCRM(application: iRestitutionApplication) {
 
 function getCRMApplication(application: iRestitutionApplication) {
     let crm_application: iCRMApplication = {
-        vsd_applicanttype: application.ApplicationType.val,
+        vsd_applicanttype: application.ApplicationType.val == ResitutionForm.VictimEntity.val ? ResitutionForm.Victim.val : application.ApplicationType.val, //annoying handling for "victim entity"
         vsd_applicantsfirstname: application.RestitutionInformation.firstName,
         vsd_applicantsmiddlename: application.RestitutionInformation.middleName,
         vsd_applicantslastname: application.RestitutionInformation.lastName,
@@ -173,6 +173,19 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
             vsd_email: vsw.email,
             vsd_relationship1: "Victim Service Worker",
         });
+    }
+
+    if (application.ApplicationType.val === ResitutionForm.VictimEntity.val) {
+        application.RestitutionInformation.contactInformation.entityContacts.forEach(c => {
+            if (checkObjectHasValue(c)) {
+                ret.push({
+                    vsd_firstname: c.firstName,
+                    vsd_lastname: c.lastName,
+                    vsd_addressline3: c.attentionTo,
+                    vsd_relationship1: "Representative"
+                });
+            }
+        })
     }
 
     return ret;

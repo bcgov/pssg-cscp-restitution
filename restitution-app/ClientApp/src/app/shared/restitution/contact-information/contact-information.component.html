@@ -1,11 +1,55 @@
 <div [formGroup]="form">
     <h2 class="blue-header" id="ContactInformation">Contact Information</h2>
-    <p *ngIf="formType.val === ResitutionForm.Victim.val">Contact information for the Victim (or the Victim Designate)</p>
+    <p *ngIf="formType.val === ResitutionForm.Victim.val || formType.val === ResitutionForm.VictimEntity.val">Contact information for the Victim (or the Victim Designate)</p>
     <p *ngIf="formType.val === ResitutionForm.Offender.val">Contact information for the Offender (or the Offender Designate)</p>
+
+    <!-- if entity form - add section for adding multiple entity contacts - minimum is one -->
+    <ng-container *ngIf="formType.val === ResitutionForm.VictimEntity.val">
+        <div formArrayName="entityContacts" *ngFor="let item of form.get('entityContacts')['controls']; let i = index;">
+            <div [formGroupName]="i" class="entity-contact-info">
+
+                <div class="row remove-row">
+                    <div class="col">
+                        <app-field label="Contact First Name" [valid]="isMyControlValid(item.get('firstName'))" errorMessage="Please enter first name" [disabled]="isDisabled">
+                            <input class="form-control" type="text" formControlName="firstName" maxlength="100">
+                        </app-field>
+                    </div>
+                    <div class="col">
+                        <app-field label="Contact Last Name" [valid]="isMyControlValid(item.get('lastName'))" errorMessage="Please enter last name" [disabled]="isDisabled">
+                            <input class="form-control" type="text" formControlName="lastName" maxlength="100">
+                        </app-field>
+                    </div>
+
+                    <div class="col-1" *ngIf="form.get('entityContacts')['controls'].length > 1">
+                        <div class="remove-button">
+                            <br>
+                            <i class="fas fa-times-circle text-danger center-clear-btn" (click)="removeContact(i)"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="row remove-row">
+                    <div class="col">
+                        <app-field label="Attention To:" [valid]="isMyControlValid(item.get('attentionTo'))" errorMessage="Please enter attention to" [disabled]="isDisabled">
+                            <input class="form-control" type="text" formControlName="attentionTo" maxlength="100">
+                        </app-field>
+                    </div>
+
+                    <!-- for spacing -->
+                    <div class="col"> </div>
+                    <div class="col-1" *ngIf="form.get('entityContacts')['controls'].length > 1"> </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="add-additional-btn-container">
+            <button *ngIf="!isDisabled" class="btn btn-secondary" (click)="addContact()">ADD CONTACT</button>
+        </div>
+    </ng-container>
 
     <div class="row">
         <div class="col-12">
-            <h3>Mailing Address</h3>
+            <h3 *ngIf="formType.val === ResitutionForm.VictimEntity.val">Business/Organization Mailing Address</h3>
+            <h3 *ngIf="formType.val === ResitutionForm.Victim.val || formType.val === ResitutionForm.Offender.val">Mailing Address</h3>
         </div>
     </div>
     <div class="row">

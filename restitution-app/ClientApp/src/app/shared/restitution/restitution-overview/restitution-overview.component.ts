@@ -32,7 +32,7 @@ export class RestitutionOverviewComponent extends FormBase implements OnInit {
         // console.log("overview component");
         // console.log(this.formType);
 
-        if (this.formType.val === ResitutionForm.Victim.val) {
+        if (this.formType.val === ResitutionForm.Victim.val || this.formType.val === ResitutionForm.VictimEntity.val) {
             this.applicant = "Victim";
         }
         else if (this.formType.val === ResitutionForm.Offender.val) {

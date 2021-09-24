@@ -55,6 +55,7 @@ namespace Gov.Cscp.VictimServices.Public.ViewModels
         public string vsd_name { get; set; }
         public string vsd_addressline1 { get; set; }
         public string vsd_addressline2 { get; set; }
+        public string vsd_addressline3 { get; set; }
         public string vsd_city { get; set; }
         public string vsd_province { get; set; }
         public string vsd_country { get; set; }

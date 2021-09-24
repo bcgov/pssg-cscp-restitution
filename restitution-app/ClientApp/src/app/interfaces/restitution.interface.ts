@@ -38,6 +38,7 @@ export interface iDesignate {
 }
 
 export interface iContactInformation {
+  entityContacts: iEntityContact[],
   preferredMethodOfContact: number;
   smsPreferred?: number;
   mailingAddress: Address;
@@ -45,6 +46,12 @@ export interface iContactInformation {
   alternatePhoneNumber: string;
   leaveVoicemail: number;
   email: string;
+}
+
+export interface iEntityContact {
+  firstName: string;
+  lastName: string;
+  attentionTo: string;
 }
 
 export interface iCourtFile {

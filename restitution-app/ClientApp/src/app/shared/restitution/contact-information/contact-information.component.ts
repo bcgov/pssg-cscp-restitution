@@ -1,10 +1,11 @@
 import { FormBase } from "../../form-base";
 import { OnInit, Component, Input } from "@angular/core";
 import { DateAdapter, MAT_DATE_LOCALE, MAT_DATE_FORMATS } from "@angular/material";
-import { FormGroup, ControlContainer, Validators } from "@angular/forms";
+import { FormGroup, ControlContainer, Validators, FormArray, FormBuilder } from "@angular/forms";
 import { MomentDateAdapter } from "@angular/material-moment-adapter";
 import { MY_FORMATS, IOptionSetVal, ResitutionForm, CRMBoolean } from "../../enums-list";
 import { iLookupData } from "../../../interfaces/lookup-data.interface";
+import { RestitutionInfoHelper } from "../restitution-information/restitution-information.helper";
 
 @Component({
     selector: 'app-restitution-contact-information',
@@ -23,8 +24,11 @@ export class RestitutionContactInformationComponent extends FormBase implements 
     ResitutionForm = ResitutionForm;
     CRMBoolean = CRMBoolean;
 
+    restitutionInfoHelper = new RestitutionInfoHelper();
+
     constructor(
         private controlContainer: ControlContainer,
+        private fb: FormBuilder,
     ) {
         super();
     }
@@ -62,5 +66,15 @@ export class RestitutionContactInformationComponent extends FormBase implements 
         if (smsPreferred == CRMBoolean.True) {
             this.setControlValidators(phoneControl, [Validators.required, Validators.minLength(10), Validators.maxLength(15)]);
         }
+    }
+
+    addContact() {
+        let entityContacts = this.form.get('entityContacts') as FormArray;
+        entityContacts.push(this.restitutionInfoHelper.createEntityContact(this.fb));
+    }
+
+    removeContact(index: number) {
+        let entityContacts = this.form.get('entityContacts') as FormArray;
+        entityContacts.removeAt(index);
     }
 }

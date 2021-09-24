@@ -64,6 +64,14 @@ export class RestitutionInformationComponent extends FormBase implements OnInit 
             this.page_header = "Offender Application";
             this.applicant_type = "Applicant";
         }
+        else if (this.formType.val === ResitutionForm.VictimEntity.val) {
+            this.page_header = "Victim Entity Application";
+            this.applicant_type = "Victim";
+            this.clearControlValidators(this.form.get("firstName"));
+            this.clearControlValidators(this.form.get("birthDate"));
+            this.clearControlValidators(this.form.get("indigenousStatus"));
+            this.clearControlValidators(this.form.get("authorizeDesignate"));
+        }
 
         if (this.lookupData.courts && this.lookupData.courts.length > 0) {
             this.courtList = this.lookupData.courts.map(c => c.vsd_name);

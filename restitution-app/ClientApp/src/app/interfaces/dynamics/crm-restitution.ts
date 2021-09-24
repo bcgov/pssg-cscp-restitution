@@ -41,6 +41,7 @@ export interface iCRMParticipant {
     vsd_name?: string;
     vsd_addressline1?: string;
     vsd_addressline2?: string;
+    vsd_addressline3?: string;
     vsd_city?: string;
     vsd_province?: string;
     vsd_postalcode?: string;
