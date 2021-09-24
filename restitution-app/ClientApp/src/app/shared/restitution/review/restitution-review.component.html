@@ -4,7 +4,21 @@
     </div>
     <p>Please check the accuracy of the information entered in your application before submitting.</p>
 
-    <ng-container>
+    <ng-container *ngIf="formType.val === ResitutionForm.VictimEntity.val">
+        <h2 class="blue-header">
+            {{applicant_type}} Information <span class="hide-for-print"><button (click)="gotoPageAndEdit(PAGES.RESTITUTION_INFORMATION, 'ApplicantInformation');" class="btn review-btn"><i class="fa fa-pencil"></i> VIEW AND EDIT</button></span>
+        </h2>
+        <table class="table table-striped review-table">
+            <tbody>
+                <tr>
+                    <th>Business/Organization Name</th>
+                    <td>{{ valueOrEmpty('restitutionInformation.lastName') }} </td>
+                </tr>
+            </tbody>
+        </table>
+    </ng-container>
+
+    <ng-container *ngIf="formType.val === ResitutionForm.Victim.val || formType.val === ResitutionForm.Offender.val">
         <h2 class="blue-header">
             {{applicant_type}} Information <span class="hide-for-print"><button (click)="gotoPageAndEdit(PAGES.RESTITUTION_INFORMATION, 'ApplicantInformation');" class="btn review-btn"><i class="fa fa-pencil"></i> VIEW AND EDIT</button></span>
         </h2>
@@ -83,6 +97,27 @@
         <h2 class="blue-header">
             Contact Information <span class="hide-for-print"><button (click)="gotoPageAndEdit(PAGES.RESTITUTION_INFORMATION, 'ContactInformation');" class="btn review-btn"><i class="fa fa-pencil"></i> VIEW AND EDIT</button></span>
         </h2>
+
+        <ng-container *ngIf="formType.val === ResitutionForm.VictimEntity.val">
+            <table class="table table-striped review-table" *ngFor="let item of contactsToDisplay['controls']; let i = index">
+                <tbody>
+                    <tr>
+                        <th>Contact First Name</th>
+                        <td>{{ valueOrEmpty(item.get('firstName')) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Contact Last Name</th>
+                        <td>{{ valueOrEmpty(item.get('lastName')) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Attention To</th>
+                        <td>{{ valueOrEmpty(item.get('attentionTo')) }}</td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </ng-container>
+
         <table class="table table-striped review-table">
             <tbody>
                 <tr>
@@ -167,7 +202,7 @@
         </h2>
         <table class="table table-striped review-table" *ngFor="let item of form.get('restitutionInformation.courtFiles')['controls']; let i = index">
             <tbody>
-                <ng-container *ngIf="formType.val === ResitutionForm.Victim.val">
+                <ng-container *ngIf="formType.val === ResitutionForm.Victim.val || formType.val === ResitutionForm.VictimEntity.val">
                     <tr>
                         <th>Offender First Name</th>
                         <td>{{ valueOrEmpty(item.get('firstName')) }}</td>
@@ -198,7 +233,7 @@
         </table>
     </ng-container>
 
-    <ng-container *ngIf="formType.val === ResitutionForm.Victim.val">
+    <ng-container *ngIf="formType.val === ResitutionForm.Victim.val || formType.val === ResitutionForm.VictimEntity.val">
         <h2 class="blue-header">
             Victim Service Worker <span class="hide-for-print"><button (click)="gotoPageAndEdit(PAGES.RESTITUTION_INFORMATION, 'VSWInformation');" class="btn review-btn"><i class="fa fa-pencil"></i> VIEW AND EDIT</button></span>
         </h2>
@@ -263,6 +298,17 @@
 
         <table class="table table-striped review-table">
             <tbody>
+                <ng-container *ngIf="formType.val === ResitutionForm.VictimEntity.val">
+                    <tr>
+                        <th>Full Name</th>
+                        <td>{{ valueOrEmpty('restitutionInformation.signatureName') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date</th>
+                        <td>{{ valueOrEmpty('restitutionInformation.signatureDate') | date }}</td>
+                    </tr>
+                </ng-container>
+
                 <tr>
                     <th>Applicant's Signature</th>
                     <td>

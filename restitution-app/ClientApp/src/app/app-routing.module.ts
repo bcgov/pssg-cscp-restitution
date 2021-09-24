@@ -23,6 +23,11 @@ const routes: Routes = [
     component: RestitutionApplicationComponent,
     data: { formType: ResitutionForm.Offender }
   },
+  {
+    path: 'victim-entity',
+    component: RestitutionApplicationComponent,
+    data: { formType: ResitutionForm.VictimEntity }
+  },
   // {
   //   path: 'application-cancelled',
   //   component: ApplicationCancelledComponent,

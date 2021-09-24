@@ -4,7 +4,7 @@
     </div>
 
     <h3 class="mt-0">Who can apply to the Restitution Program?</h3>
-    <section *ngIf="formType.val === ResitutionForm.Victim.val">
+    <section *ngIf="formType.val === ResitutionForm.Victim.val || formType.val === ResitutionForm.VictimEntity.val">
         <ul class="list">
             <li>Are you owed money on a restitution order that has not been paid in full?</li>
             <li>Was the restitution order issued by an adult criminal court in the province of B.C.?</li>

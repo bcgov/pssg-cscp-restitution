@@ -17,12 +17,13 @@ export class RestitutionInfoHelper {
 
             birthDate: ['', [Validators.required]],
             gender: [null],
-            indigenousStatus: [0, [Validators.required, Validators.min(100000000), Validators.max(100000004)]],
+            indigenousStatus: [null, [Validators.required, Validators.min(100000000), Validators.max(100000004)]],
 
             authorizeDesignate: ['', Validators.required],
             designate: fb.array([]),
 
             contactInformation: fb.group({
+                entityContacts: fb.array([this.createEntityContact(fb)]),
                 mailingAddress: fb.group({
                     line1: ['', [Validators.required]],
                     line2: [''],
@@ -53,7 +54,7 @@ export class RestitutionInfoHelper {
             signature: ['', Validators.required],
         }
 
-        if (form_type.val === ResitutionForm.Victim.val) {
+        if (form_type.val === ResitutionForm.Victim.val || form_type.val === ResitutionForm.VictimEntity.val) {
             group["vsw"] = fb.array([this.createVSW(fb)]);
         }
 
@@ -65,6 +66,12 @@ export class RestitutionInfoHelper {
             group["probationOfficerEmail"] = ['', [Validators.email]];
         }
 
+        if (form_type.val === ResitutionForm.VictimEntity.val) {
+            let today = new Date();
+            group["signatureName"] = ['', Validators.required];
+            group["signatureDate"] = [today, Validators.required];
+        }
+
         return fb.group(group);
     }
 
@@ -74,7 +81,7 @@ export class RestitutionInfoHelper {
             location: [''],
         };
 
-        if (form_type.val === ResitutionForm.Victim.val) {
+        if (form_type.val === ResitutionForm.Victim.val || form_type.val === ResitutionForm.VictimEntity.val) {
             group["firstName"] = [''];
             group["middleName"] = [''];
             group["lastName"] = [''];
@@ -100,6 +107,14 @@ export class RestitutionInfoHelper {
             program: [''],
             phoneNumber: ['', [Validators.minLength(10), Validators.maxLength(15)]],
             email: ['', [Validators.email]],
+        });
+    }
+
+    createEntityContact(fb: FormBuilder): FormGroup {
+        return fb.group({
+            firstName: [''],
+            lastName: [''],
+            attentionTo: [''],
         });
     }
 }
