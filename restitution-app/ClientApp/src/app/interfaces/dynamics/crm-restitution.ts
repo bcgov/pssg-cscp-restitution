@@ -25,6 +25,9 @@ export interface iCRMApplication {
     vsd_applicantsprimaryprovince: string;
     vsd_applicantsprimarypostalcode: string;
     vsd_applicantsprimarycountry: string;
+    vsd_cvap_offenderfirstname?: string;
+    vsd_cvap_offendermiddlename?: string;
+    vsd_cvap_offenderlastname?: string;
     vsd_voicemailoption?: number;
     vsd_applicantssignature: string;
 }

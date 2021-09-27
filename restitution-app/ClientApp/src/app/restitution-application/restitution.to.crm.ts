@@ -71,6 +71,15 @@ function getCRMApplication(application: iRestitutionApplication) {
         crm_application.vsd_voicemailoption = application.RestitutionInformation.contactInformation.leaveVoicemail;
     }
 
+    //there is only ever 1 file
+    application.RestitutionInformation.courtFiles.forEach(file => {
+        if (checkFileHasOffender(file)) {
+            crm_application.vsd_cvap_offenderfirstname = file.firstName;
+            crm_application.vsd_cvap_offendermiddlename = file.middleName;
+            crm_application.vsd_cvap_offenderlastname = file.lastName;
+        }
+    });
+
     return crm_application;
 }
 
@@ -139,14 +148,14 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
         ret.push(toAdd);
     }
 
-    //if victim application - there may be offenders (which are included in the "courtFiles")
+    //victim/entity application - we save a "Victim" participant to hold the relationship to the offender... weird system
     application.RestitutionInformation.courtFiles.forEach(file => {
-        if (checkFileHasOffender(file)) {
+        if (file.relationship) {
             ret.push({
-                vsd_firstname: file.firstName,
-                vsd_middlename: file.middleName,
-                vsd_lastname: file.lastName,
-                vsd_relationship1: "Offender",
+                vsd_firstname: application.RestitutionInformation.firstName,
+                vsd_middlename: application.RestitutionInformation.middleName,
+                vsd_lastname: application.RestitutionInformation.lastName,
+                vsd_relationship1: "Victim",
                 vsd_relationship2: file.relationship
             });
         }
