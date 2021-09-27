@@ -22,6 +22,9 @@ export class RestitutionSuccessComponent {
     else if (type.val === ResitutionForm.Offender.val) {
       this.router.navigate(['/offender']);
     }
+    else if (type.val === ResitutionForm.VictimEntity.val) {
+      this.router.navigate(['/victim-entity']);
+    }
     else {
       //not implemented...
     }

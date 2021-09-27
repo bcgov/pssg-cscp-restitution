@@ -33,6 +33,9 @@ namespace Gov.Cscp.VictimServices.Public.ViewModels
         public string vsd_applicantsprimaryprovince { get; set; }
         public string vsd_applicantsprimarypostalcode { get; set; }
         public string vsd_applicantsprimarycountry { get; set; }
+        public string vsd_cvap_offenderfirstname { get; set; }
+        public string vsd_cvap_offendermiddlename { get; set; }
+        public string vsd_cvap_offenderlastname { get; set; }
         public int? vsd_voicemailoption { get; set; }
         public string vsd_applicantssignature { get; set; }
     }
