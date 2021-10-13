@@ -27,17 +27,16 @@
                         </div>
                     </div>
                 </div>
-                <div class="row remove-row">
+                <!-- <div class="row remove-row">
                     <div class="col">
                         <app-field label="Attention To:" [valid]="isMyControlValid(item.get('attentionTo'))" errorMessage="Please enter attention to" [disabled]="isDisabled">
                             <input class="form-control" type="text" formControlName="attentionTo" maxlength="100">
                         </app-field>
                     </div>
 
-                    <!-- for spacing -->
                     <div class="col"> </div>
                     <div class="col-1" *ngIf="form.get('entityContacts')['controls'].length > 1"> </div>
-                </div>
+                </div> -->
             </div>
         </div>
 
@@ -55,6 +54,13 @@
     <div class="row">
         <div class="col-12">
             <app-restitution-address [group]="form.get('mailingAddress')" [lookupData]="lookupData" [showChildrenAsRequired]="true" [isDisabled]="isDisabled"></app-restitution-address>
+        </div>
+    </div>
+    <div class="row" *ngIf="formType.val === ResitutionForm.VictimEntity.val">
+        <div class="col-6">
+            <app-field label="Attention To:" [valid]="isMyControlValid(form.get('attentionTo'))" errorMessage="Please enter attention to" [disabled]="isDisabled">
+                <input class="form-control" type="text" formControlName="attentionTo" maxlength="100">
+            </app-field>
         </div>
     </div>
 

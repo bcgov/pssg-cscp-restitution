@@ -32,7 +32,8 @@ export class RestitutionInfoHelper {
                     province: [{ value: 'British Columbia', disabled: false }, [Validators.required]],
                     country: [{ value: 'Canada', disabled: false }, [Validators.required]],
                 }),
-
+                
+                attentionTo: [''],
                 preferredMethodOfContact: [null, [Validators.required, Validators.min(1), Validators.max(100000002)]], // Phone = 2, Email = 1, Mail = 4, Alternate Mail = 100000002
                 smsPreferred: [null],
 
@@ -115,7 +116,6 @@ export class RestitutionInfoHelper {
         return fb.group({
             firstName: [''],
             lastName: [''],
-            attentionTo: [''],
         });
     }
 }
