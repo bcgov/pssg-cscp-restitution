@@ -56,7 +56,7 @@ export class RestitutionReviewComponent extends FormBase implements OnInit {
         console.log(entityContacts);
         for (let i = 0; i < entityContacts.length; ++i) {
             console.log(entityContacts.at(i).get("firstName"));
-            if ((entityContacts.at(i).get("firstName").value || entityContacts.at(i).get("lastName").value || entityContacts.at(i).get("attentionTo").value)) {
+            if ((entityContacts.at(i).get("firstName").value || entityContacts.at(i).get("lastName").value)) {
                 this.contactsToDisplay.push(entityContacts.at(i));
             }
         }

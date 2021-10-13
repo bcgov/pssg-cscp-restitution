@@ -54,6 +54,14 @@ function getCRMApplication(application: iRestitutionApplication) {
         vsd_applicantssignature: application.RestitutionInformation.signature,
     }
 
+    if (application.RestitutionInformation.signatureName) {
+        crm_application.vsd_declarationfullname = application.RestitutionInformation.signatureName;
+    }
+
+    if (application.RestitutionInformation.signatureDate) {
+        crm_application.vsd_declarationdate = application.RestitutionInformation.signatureDate;
+    }
+
     let hasDesignate = (application.RestitutionInformation.authorizeDesignate && application.RestitutionInformation.designate.length > 0);
 
     if (!hasDesignate) {
@@ -150,15 +158,16 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
 
     //victim/entity application - we save a "Victim" participant to hold the relationship to the offender... weird system
     application.RestitutionInformation.courtFiles.forEach(file => {
-        if (file.relationship) {
+        // if (file.relationship) {
             ret.push({
                 vsd_firstname: application.RestitutionInformation.firstName,
                 vsd_middlename: application.RestitutionInformation.middleName,
                 vsd_lastname: application.RestitutionInformation.lastName,
                 vsd_relationship1: "Victim",
-                vsd_relationship2: file.relationship
+                vsd_relationship2: file.relationship,
+                vsd_addressline3: application.RestitutionInformation.contactInformation.attentionTo
             });
-        }
+        // }
     });
 
     if (application.ApplicationType.val === ApplicationType.Offender_Application && checkProbationOfficerHasValue(application)) {
@@ -190,7 +199,6 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
                 ret.push({
                     vsd_firstname: c.firstName,
                     vsd_lastname: c.lastName,
-                    vsd_addressline3: c.attentionTo,
                     vsd_relationship1: "Representative"
                 });
             }

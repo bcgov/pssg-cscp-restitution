@@ -11,7 +11,7 @@
         <table class="table table-striped review-table">
             <tbody>
                 <tr>
-                    <th>Business/Organization Name</th>
+                    <th>Entity Name</th>
                     <td>{{ valueOrEmpty('restitutionInformation.lastName') }} </td>
                 </tr>
             </tbody>
@@ -109,11 +109,6 @@
                         <th>Contact Last Name</th>
                         <td>{{ valueOrEmpty(item.get('lastName')) }}</td>
                     </tr>
-                    <tr>
-                        <th>Attention To</th>
-                        <td>{{ valueOrEmpty(item.get('attentionTo')) }}</td>
-                    </tr>
-
                 </tbody>
             </table>
         </ng-container>
@@ -134,6 +129,10 @@
                 <tr>
                     <th>Mailing Address</th>
                     <td><span *ngIf="addressHelper.hasAddressInfo(form.get('restitutionInformation.contactInformation.mailingAddress').value)" [innerHTML]="displayMailingSubAddress('restitutionInformation.contactInformation.mailingAddress')"></span></td>
+                </tr>
+                <tr *ngIf="formType.val === ResitutionForm.VictimEntity.val">
+                    <th>Attention To</th>
+                    <td>{{ valueOrEmpty('restitutionInformation.contactInformation.attentionTo') }}</td>
                 </tr>
             </tbody>
         </table>
