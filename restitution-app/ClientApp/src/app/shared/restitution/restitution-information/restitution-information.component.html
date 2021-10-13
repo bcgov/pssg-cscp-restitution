@@ -8,12 +8,16 @@
         A Restitution caseworker will be in touch with you regarding the next steps.
     </p>
 
+    <p *ngIf="formType.val === ResitutionForm.VictimEntity.val">
+        This application must be completed by an individual who has signing authority for the entity.
+    </p>
+
     <h2 class="blue-header" id="ApplicantInformation" [class.mt-0]="ResitutionForm.Victim.val">{{applicant_type}} Information</h2>
     <h3>{{applicant_type}} Information</h3>
     <ng-container *ngIf="formType.val === ResitutionForm.VictimEntity.val">
         <div class="row">
             <div class="col-md-6">
-                <app-field label="Business/Organization Name" [required]="true" [valid]="isFieldValid('firstName')" errorMessage="Please enter your Business/Organization name" [disabled]="isDisabled">
+                <app-field label="Entity Name" [required]="true" [valid]="isFieldValid('firstName')" errorMessage="Please enter your Entity name" [disabled]="isDisabled">
                     <input class="form-control" type="text" formControlName="lastName" maxlength="100">
                 </app-field>
             </div>
@@ -336,18 +340,25 @@
             <input type="checkbox" [value]="true" name="declaredAndSigned" formControlName="declaredAndSigned">
             <span *ngIf="formType.val === ResitutionForm.Victim.val">By signing this form, I am applying to the Restitution Program for assistance in the facilitation of my restitution order and I confirm that I am the individual named on this form (or the parent/guardian/legal representative of the victim named on this form). Where applicable, I give permission to the Restitution Program to release information to the Victim Designate I have named above.<span class="error-states">*</span></span>
             <span *ngIf="formType.val === ResitutionForm.Offender.val">By signing this form, I am applying to the Restitution Program for assistance in the facilitation of my restitution order and I confirm that I am the individual named on this form.<span class="error-states">*</span></span>
-            <span *ngIf="formType.val === ResitutionForm.VictimEntity.val">Erin to provide text</span>
+            <span *ngIf="formType.val === ResitutionForm.VictimEntity.val">By signing this form, I confirm that I have signing authority for the subject of the above noted restitution order and I am applying to the Restitution Program for assistance in the facilitation of the restitution order. Where applicable, I give permission to the Restitution Program to release information to the contacts I have named above.<span class="error-states">*</span></span>
         </label>
     </app-field>
 
     <ng-container *ngIf="formType.val === ResitutionForm.VictimEntity.val">
         <div class="row">
             <div class="col-md-6">
-                <app-field label="Full Name" [required]="true" [valid]="isMyControlValid(form.get('signatureName'))" errorMessage="Please enter your full name" [disabled]="isDisabled">
+                <app-field label="Signing Officer Full Name" [required]="true" [valid]="isMyControlValid(form.get('signatureName'))" errorMessage="Please enter the Signing Officer Full Name" [disabled]="isDisabled">
                     <input class="form-control" type="text" formControlName="signatureName" maxlength="100">
                 </app-field>
             </div>
             <div class="col-md-6">
+                <!-- <app-field label="Signing Officer Title" [required]="true" [valid]="isFieldValid('signerTitle')" errorMessage="Please enter Signing Officer Title" [disabled]="isDisabled">
+                    <input class="form-control" type="text" formControlName="signerTitle" maxlength="100">
+                </app-field>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6"> -->
                 <app-field label="Date" [required]="true" [valid]="isFieldValid('signatureDate')" errorMessage="Please enter the date" [disabled]="isDisabled">
                     <input type="text" [max]="today" class="form-control date-picker" formControlName="signatureDate" placeholder="yyyy/mm/dd" [matDatepicker]="datePicker" (focus)="datePicker.open()" (click)="datePicker.open()" readonly>
                     <mat-datepicker #datePicker></mat-datepicker>

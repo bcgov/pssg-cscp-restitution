@@ -69,6 +69,7 @@ export class RestitutionInfoHelper {
         if (form_type.val === ResitutionForm.VictimEntity.val) {
             let today = new Date();
             group["signatureName"] = ['', Validators.required];
+            // group["signerTitle"] = ['', Validators.required];
             group["signatureDate"] = [today, Validators.required];
         }
 

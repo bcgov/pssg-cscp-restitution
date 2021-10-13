@@ -54,6 +54,14 @@ function getCRMApplication(application: iRestitutionApplication) {
         vsd_applicantssignature: application.RestitutionInformation.signature,
     }
 
+    if (application.RestitutionInformation.signatureName) {
+        crm_application.vsd_declarationfullname = application.RestitutionInformation.signatureName;
+    }
+
+    if (application.RestitutionInformation.signatureDate) {
+        crm_application.vsd_declarationdate = application.RestitutionInformation.signatureDate;
+    }
+
     let hasDesignate = (application.RestitutionInformation.authorizeDesignate && application.RestitutionInformation.designate.length > 0);
 
     if (!hasDesignate) {

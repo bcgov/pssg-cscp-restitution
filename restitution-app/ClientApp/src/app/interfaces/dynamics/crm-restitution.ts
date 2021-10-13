@@ -29,6 +29,9 @@ export interface iCRMApplication {
     vsd_cvap_offendermiddlename?: string;
     vsd_cvap_offenderlastname?: string;
     vsd_voicemailoption?: number;
+    
+    vsd_declarationfullname?: string;
+    vsd_declarationdate?: Date;
     vsd_applicantssignature: string;
 }
 export interface iCRMCourtInfo {
@@ -59,6 +62,7 @@ export interface iCRMParticipant {
     vsd_rest_programname?: string;
     vsd_relationship1: string;
     vsd_relationship2?: string;
+    // vsd_title?: string;
 }
 export interface iCRMDocument {
     filename: string;

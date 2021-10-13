@@ -28,6 +28,9 @@ export interface RestitutionInformation {
   documents: iDocument[];
   declaredAndSigned: string;
   signature: string;
+  signatureName?: string;
+  // signerTitle?: string;
+  signatureDate?: Date;
 }
 
 export interface iDesignate {
@@ -52,6 +55,14 @@ export interface iEntityContact {
   firstName: string;
   lastName: string;
   attentionTo: string;
+  // title: string;
+  // isPrimaryEntityContact: boolean;
+  // preferredMethodOfContact: number;
+  // smsPreferred?: number;
+  // phoneNumber: string;
+  // alternatePhoneNumber: string;
+  // leaveVoicemail: number;
+  // email: string;
 }
 
 export interface iCourtFile {

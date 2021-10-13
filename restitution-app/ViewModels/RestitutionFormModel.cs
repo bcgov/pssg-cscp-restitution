@@ -38,6 +38,8 @@ namespace Gov.Cscp.VictimServices.Public.ViewModels
         public string vsd_cvap_offenderlastname { get; set; }
         public int? vsd_voicemailoption { get; set; }
         public string vsd_applicantssignature { get; set; }
+        public string vsd_declarationfullname { get; set; }
+        public DateTime? vsd_declarationdate { get; set; }
     }
 
     public class CourtInfo
@@ -73,6 +75,7 @@ namespace Gov.Cscp.VictimServices.Public.ViewModels
         public string vsd_rest_programname { get; set; }
         public string vsd_relationship1 { get; set; }
         public string vsd_relationship2 { get; set; }
+        // public string vsd_title { get; set; }
     }
 
     public class DocumentCollection
