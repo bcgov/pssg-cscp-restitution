@@ -27,16 +27,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- <div class="row remove-row">
-                    <div class="col">
-                        <app-field label="Attention To:" [valid]="isMyControlValid(item.get('attentionTo'))" errorMessage="Please enter attention to" [disabled]="isDisabled">
-                            <input class="form-control" type="text" formControlName="attentionTo" maxlength="100">
-                        </app-field>
-                    </div>
-
-                    <div class="col"> </div>
-                    <div class="col-1" *ngIf="form.get('entityContacts')['controls'].length > 1"> </div>
-                </div> -->
             </div>
         </div>
 
@@ -141,18 +131,4 @@
             </app-field>
         </div>
     </div>
-    <!-- <div class="row">
-        <div class="col">
-            <app-field label="May we leave a detailed message?" errorMessage="" [disabled]="isDisabled" [valid]="isMyControlValid(form.get('leaveMessage'))" errorMessage="Please choose an option">
-                <label class="inline-label">
-                    <input type="radio" [value]="CRMBoolean.True" formControlName="leaveMessage">
-                    <span>Yes</span>
-                </label>
-                <label class="inline-label">
-                    <input type="radio" [value]="CRMBoolean.False" formControlName="leaveMessage">
-                    <span>No</span>
-                </label>
-            </app-field>
-        </div>
-    </div> -->
 </div>
