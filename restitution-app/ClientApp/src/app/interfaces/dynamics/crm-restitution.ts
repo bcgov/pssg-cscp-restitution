@@ -21,6 +21,7 @@ export interface iCRMApplication {
     vsd_applicantsemail?: string;
     vsd_applicantsprimaryaddressline1: string;
     vsd_applicantsprimaryaddressline2: string;
+    vsd_applicantsprimaryaddressline3: string;
     vsd_applicantsprimarycity: string;
     vsd_applicantsprimaryprovince: string;
     vsd_applicantsprimarypostalcode: string;

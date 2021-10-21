@@ -1,6 +1,6 @@
 import { iCRMApplication, iCRMCourtInfo, iCRMParticipant, iRestitutionCRM } from "../interfaces/dynamics/crm-restitution";
 import { iRestitutionApplication, iCourtFile, iDocument } from "../interfaces/restitution.interface";
-import { ApplicationType, CRMBoolean, EnumHelper, ResitutionForm } from "../shared/enums-list";
+import { CRMBoolean, EnumHelper, ResitutionForm } from "../shared/enums-list";
 
 
 export function convertRestitutionToCRM(application: iRestitutionApplication) {
@@ -46,6 +46,7 @@ function getCRMApplication(application: iRestitutionApplication) {
         vsd_applicantsemail: '',
         vsd_applicantsprimaryaddressline1: '',
         vsd_applicantsprimaryaddressline2: '',
+        vsd_applicantsprimaryaddressline3: application.RestitutionInformation.contactInformation.attentionTo,
         vsd_applicantsprimarycity: '',
         vsd_applicantsprimaryprovince: '',
         vsd_applicantsprimarypostalcode: '',
@@ -157,20 +158,20 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
     }
 
     //victim/entity application - we save a "Victim" participant to hold the relationship to the offender... weird system
-    application.RestitutionInformation.courtFiles.forEach(file => {
-        // if (file.relationship) {
+    if (application.ApplicationType.val === ResitutionForm.Victim.val || application.ApplicationType.val === ResitutionForm.VictimEntity.val) {
+        application.RestitutionInformation.courtFiles.forEach(file => {
             ret.push({
                 vsd_firstname: application.RestitutionInformation.firstName,
                 vsd_middlename: application.RestitutionInformation.middleName,
                 vsd_lastname: application.RestitutionInformation.lastName,
                 vsd_relationship1: "Victim",
                 vsd_relationship2: file.relationship,
-                vsd_addressline3: application.RestitutionInformation.contactInformation.attentionTo
+                // vsd_addressline3: application.RestitutionInformation.contactInformation.attentionTo
             });
-        // }
-    });
+        });
+    }
 
-    if (application.ApplicationType.val === ApplicationType.Offender_Application && checkProbationOfficerHasValue(application)) {
+    if (application.ApplicationType.val === ResitutionForm.Offender.val && checkProbationOfficerHasValue(application)) {
         ret.push({
             vsd_firstname: application.RestitutionInformation.probationOfficerFirstName,
             vsd_lastname: application.RestitutionInformation.probationOfficerLastName,
@@ -181,7 +182,7 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
         });
     }
 
-    if (application.ApplicationType.val === ApplicationType.Victim_Application && checkObjectHasValue(application.RestitutionInformation.vsw[0])) {
+    if (application.ApplicationType.val === ResitutionForm.Victim.val && checkObjectHasValue(application.RestitutionInformation.vsw[0])) {
         let vsw = application.RestitutionInformation.vsw[0];
         ret.push({
             vsd_firstname: vsw.firstName,
