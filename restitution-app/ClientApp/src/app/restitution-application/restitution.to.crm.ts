@@ -165,7 +165,8 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
                 vsd_middlename: application.RestitutionInformation.middleName,
                 vsd_lastname: application.RestitutionInformation.lastName,
                 vsd_relationship1: "Victim",
-                vsd_relationship2: file.relationship,
+                vsd_relationship2: "Other",
+                vsd_relationship2other: file.relationship,
                 // vsd_addressline3: application.RestitutionInformation.contactInformation.attentionTo
             });
         });
