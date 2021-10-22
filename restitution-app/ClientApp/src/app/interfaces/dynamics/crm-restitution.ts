@@ -63,6 +63,7 @@ export interface iCRMParticipant {
     vsd_rest_programname?: string;
     vsd_relationship1: string;
     vsd_relationship2?: string;
+    vsd_relationship2other?: string;
     // vsd_title?: string;
 }
 export interface iCRMDocument {
