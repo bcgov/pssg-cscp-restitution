@@ -183,7 +183,7 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
         });
     }
 
-    if (application.ApplicationType.val === ResitutionForm.Victim.val && checkObjectHasValue(application.RestitutionInformation.vsw[0])) {
+    if ((application.ApplicationType.val === ResitutionForm.Victim.val || application.ApplicationType.val === ResitutionForm.VictimEntity.val) && checkObjectHasValue(application.RestitutionInformation.vsw[0])) {
         let vsw = application.RestitutionInformation.vsw[0];
         ret.push({
             vsd_firstname: vsw.firstName,
