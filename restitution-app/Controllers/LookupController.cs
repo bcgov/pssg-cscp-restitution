@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using System.Threading.Tasks;
 using System;
+using System.Text.Json;
 
 namespace Gov.Cscp.VictimServices.Public.Controllers
 {
@@ -86,27 +87,21 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
         {
             try
             {
-                string requestBody = "";
-                if (!string.IsNullOrEmpty(country))
+                var searchParameters = new CitySearchParameters()
                 {
-                    requestBody += "\"Country\":\"" + country + "\",";
-                }
-                if (!string.IsNullOrEmpty(province))
-                {
-                    requestBody += "\"Province\":\"" + province + "\",";
-                }
-                if (!string.IsNullOrEmpty(searchVal))
-                {
-                    requestBody += "\"City\":\"" + searchVal + "\",";
-                }
-                requestBody += "\"TopCount\":" + limit + "";
-
-                string requestJson = "{" + requestBody + "}";
+                    Country = country,
+                    Province = province,
+                    City = searchVal,
+                    TopCount = limit
+                };
+                
                 string endpointUrl = "vsd_GetCities";
 
-                // get the response
-                DynamicsResult result = await _dynamicsResultService.Post(endpointUrl, requestJson);
+                JsonSerializerOptions options = new JsonSerializerOptions();
+                options.IgnoreNullValues = true;
+                string requestJson = System.Text.Json.JsonSerializer.Serialize(searchParameters, options);
 
+                DynamicsResult result = await _dynamicsResultService.Post(endpointUrl, requestJson);
                 return StatusCode((int)result.statusCode, result.result.ToString());
             }
             catch (Exception e)
@@ -277,5 +272,13 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             }
             finally { }
         }
+    }
+
+    public class CitySearchParameters
+    {
+        public string Country { get; set; }
+        public string Province { get; set; }
+        public string City { get; set; }
+        public int TopCount { get; set; }
     }
 }
