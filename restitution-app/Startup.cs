@@ -23,6 +23,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.Extensions.Hosting;
 
 namespace Gov.Cscp.VictimServices.Public
 {
@@ -50,6 +51,7 @@ namespace Gov.Cscp.VictimServices.Public
             // for security reasons, the following headers are set.
             services.AddMvc(opts =>
             {
+                opts.EnableEndpointRouting = false;
                 // default deny
                 var policy = new AuthorizationPolicyBuilder()
                  .RequireAuthenticatedUser()
@@ -68,8 +70,8 @@ namespace Gov.Cscp.VictimServices.Public
 
                 opts.Filters.Add(new AllowAnonymousFilter()); // Allow anonymous for dev
             })
-            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
-            .AddJsonOptions(
+            .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+            .AddNewtonsoftJson(
                 opts =>
                 {
                     opts.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
@@ -112,7 +114,7 @@ namespace Gov.Cscp.VictimServices.Public
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             var log = loggerFactory.CreateLogger("Startup");
 
