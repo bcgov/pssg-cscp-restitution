@@ -1,5 +1,5 @@
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { IOptionSetVal, ResitutionForm } from "../../enums-list";
+import { CRMBoolean, IOptionSetVal, ResitutionForm } from "../../enums-list";
 import { POSTAL_CODE } from "../../regex.constants";
 import { EmailValidator } from "../../validators/email.validator";
 
@@ -32,19 +32,8 @@ export class RestitutionInfoHelper {
                     province: [{ value: 'British Columbia', disabled: false }, [Validators.required]],
                     country: [{ value: 'Canada', disabled: false }, [Validators.required]],
                 }),
-                
                 attentionTo: [''],
-                preferredMethodOfContact: [null, [Validators.required, Validators.min(1), Validators.max(100000002)]], // Phone = 2, Email = 1, Mail = 4, Alternate Mail = 100000002
-                smsPreferred: [null],
-
-                phoneNumber: ['', [Validators.minLength(10), Validators.maxLength(15)]],
-                alternatePhoneNumber: [''],
-                leaveVoicemail: [null],
-                email: ['', [Validators.email]],
-                confirmEmail: ['', [
-                    Validators.email,
-                    EmailValidator('email')
-                ]],
+                
             }),
 
             courtFiles: fb.array([this.createCourtFile(fb, form_type)]),
@@ -115,7 +104,19 @@ export class RestitutionInfoHelper {
     createEntityContact(fb: FormBuilder): FormGroup {
         return fb.group({
             firstName: [''],
-            lastName: [''],
+          lastName: [''],
+          contactTitle: ['', [Validators.minLength(1), Validators.maxLength(15)]],
+          isPrimaryContact: [CRMBoolean.False],
+          preferredMethodOfContact: [null, [Validators.required, Validators.min(1), Validators.max(100000002)]], // Phone = 2, Email = 1, Mail = 4, Alternate Mail = 100000002
+          smsPreferred: [null],
+          phoneNumber: ['', [Validators.minLength(10), Validators.maxLength(15)]],
+          alternatePhoneNumber: [''],
+          email: ['', [Validators.email]],
+          confirmEmail: ['', [
+            Validators.email,
+            EmailValidator('email')
+          ]],
+          leaveVoicemail: [null],
         });
     }
 }

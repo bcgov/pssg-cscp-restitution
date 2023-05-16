@@ -1,5 +1,5 @@
-import { iCRMApplication, iCRMCourtInfo, iCRMParticipant, iRestitutionCRM } from "../interfaces/dynamics/crm-restitution";
-import { iRestitutionApplication, iCourtFile, iDocument } from "../interfaces/restitution.interface";
+import { iCRMApplication, iCRMContactInfo, iCRMCourtInfo, iCRMParticipant, iRestitutionCRM } from "../interfaces/dynamics/crm-restitution";
+import { iRestitutionApplication, iCourtFile, iDocument, iEntityContact } from "../interfaces/restitution.interface";
 import { CRMBoolean, EnumHelper, ResitutionForm } from "../shared/enums-list";
 
 
@@ -9,7 +9,13 @@ export function convertRestitutionToCRM(application: iRestitutionApplication) {
 
     let crm_application: iRestitutionCRM = {
         Application: getCRMApplication(application),
-    }
+  }
+  let hasDesignate = (application.RestitutionInformation.authorizeDesignate && application.RestitutionInformation.designate.length > 0);
+
+  if (!hasDesignate) {
+    crm_application.ContactInfoCollection = getCRMContactInfoCollection(application);
+ }
+
 
     let courtInfo = getCRMCourtInfoCollection(application);
     if (courtInfo.length > 0) crm_application.CourtInfoCollection = courtInfo;
@@ -28,31 +34,37 @@ export function convertRestitutionToCRM(application: iRestitutionApplication) {
 }
 
 function getCRMApplication(application: iRestitutionApplication) {
-    let crm_application: iCRMApplication = {
+  let primaryContact: iEntityContact;
+  if (application.RestitutionInformation.contactInformation.entityContacts.length) {
+     primaryContact = application.RestitutionInformation.contactInformation.entityContacts
+      .filter(k => k.isPrimaryEntityContact)[0];
+    if (primaryContact == null || primaryContact == undefined) {
+      primaryContact = application.RestitutionInformation.contactInformation.entityContacts[0];
+    }
+  }
+
+  let crm_application: iCRMApplication = {
         vsd_applicanttype: application.ApplicationType.val == ResitutionForm.VictimEntity.val ? ResitutionForm.Victim.val : application.ApplicationType.val, //annoying handling for "victim entity"
-        vsd_applicantsfirstname: application.RestitutionInformation.firstName,
+        vsd_applicantsfirstname: primaryContact != undefined ? primaryContact.firstName : application.RestitutionInformation.firstName,
         vsd_applicantsmiddlename: application.RestitutionInformation.middleName,
-        vsd_applicantslastname: application.RestitutionInformation.lastName,
+        vsd_applicantslastname: primaryContact != undefined ? primaryContact.firstName : application.RestitutionInformation.lastName,
         vsd_otherfirstname: application.RestitutionInformation.otherFirstName,
         vsd_otherlastname: application.RestitutionInformation.otherLastName,
         vsd_applicantsgendercode: application.RestitutionInformation.gender,
         vsd_applicantsbirthdate: application.RestitutionInformation.birthDate,
         vsd_indigenous: application.RestitutionInformation.indigenousStatus,
-
-        vsd_applicantspreferredmethodofcontact: null,
-        vsd_smspreferred: null,
-        vsd_applicantsprimaryphonenumber: '',
-        vsd_applicantsalternatephonenumber: '',
-        vsd_applicantsemail: '',
-        vsd_applicantsprimaryaddressline1: '',
-        vsd_applicantsprimaryaddressline2: '',
-        vsd_applicantsprimaryaddressline3: application.RestitutionInformation.contactInformation.attentionTo,
-        vsd_applicantsprimarycity: '',
-        vsd_applicantsprimaryprovince: '',
-        vsd_applicantsprimarypostalcode: '',
-        vsd_applicantsprimarycountry: '',
-        vsd_voicemailoption: null,
+        vsd_applicantsprimarycity: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.city : '',
+        vsd_applicantsprimaryprovince: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.province : '',
+        vsd_applicantsprimarypostalcode: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.postalCode : '',
+        vsd_applicantsprimarycountry: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.country : '',
         vsd_applicantssignature: application.RestitutionInformation.signature,
+        vsd_smspreferred: primaryContact.smsPreferred,
+        vsd_applicantspreferredmethodofcontact: primaryContact.preferredMethodOfContact,
+        vsd_applicantsprimaryphonenumber: primaryContact.phoneNumber,
+        vsd_applicantsalternatephonenumber: primaryContact.alternatePhoneNumber,
+        vsd_applicantsemail: primaryContact.email,
+        vsd_applicantsprimaryaddressline1: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.line1 : '',
+        vsd_applicantsprimaryaddressline2: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.line2 : '',
     }
 
     if (application.RestitutionInformation.signatureName) {
@@ -63,23 +75,7 @@ function getCRMApplication(application: iRestitutionApplication) {
         crm_application.vsd_declarationdate = application.RestitutionInformation.signatureDate;
     }
 
-    let hasDesignate = (application.RestitutionInformation.authorizeDesignate && application.RestitutionInformation.designate.length > 0);
-
-    if (!hasDesignate) {
-        crm_application.vsd_applicantspreferredmethodofcontact = application.RestitutionInformation.contactInformation.preferredMethodOfContact;
-        crm_application.vsd_smspreferred = application.RestitutionInformation.contactInformation.smsPreferred;
-        crm_application.vsd_applicantsprimaryphonenumber = application.RestitutionInformation.contactInformation.phoneNumber;
-        crm_application.vsd_applicantsalternatephonenumber = application.RestitutionInformation.contactInformation.alternatePhoneNumber;
-        crm_application.vsd_applicantsemail = application.RestitutionInformation.contactInformation.email;
-        crm_application.vsd_applicantsprimaryaddressline1 = application.RestitutionInformation.contactInformation.mailingAddress.line1;
-        crm_application.vsd_applicantsprimaryaddressline2 = application.RestitutionInformation.contactInformation.mailingAddress.line2;
-        crm_application.vsd_applicantsprimarycity = application.RestitutionInformation.contactInformation.mailingAddress.city;
-        crm_application.vsd_applicantsprimaryprovince = application.RestitutionInformation.contactInformation.mailingAddress.province;
-        crm_application.vsd_applicantsprimarypostalcode = application.RestitutionInformation.contactInformation.mailingAddress.postalCode;
-        crm_application.vsd_applicantsprimarycountry = application.RestitutionInformation.contactInformation.mailingAddress.country;
-        crm_application.vsd_voicemailoption = application.RestitutionInformation.contactInformation.leaveVoicemail;
-    }
-
+ 
     //there is only ever 1 file
     application.RestitutionInformation.courtFiles.forEach(file => {
         if (checkFileHasOffender(file)) {
@@ -106,7 +102,29 @@ function getCRMCourtInfoCollection(application: iRestitutionApplication) {
 
     return ret;
 }
+function getCRMContactInfoCollection(application: iRestitutionApplication) {
+  let ret: iCRMContactInfo[] = [];
 
+  application.RestitutionInformation.contactInformation.entityContacts.forEach(contact => {
+    if (contact) {
+      ret.push({
+        vsd_applicantsfirstname: contact.firstName,
+        vsd_applicantslastname: contact.lastName,
+        vsd_applicantsemail: contact.email,
+        vsd_applicantspreferredmethodofcontact: contact.preferredMethodOfContact,
+        vsd_applicantsprimaryphonenumber: contact.phoneNumber,
+        vsd_applicantsalternatephonenumber: contact.alternatePhoneNumber,
+        vsd_smspreferred: contact.smsPreferred,
+        vsd_voicemailoption: contact.leaveVoicemail,
+        vsd_applicantsprimaryaddressline1: contact.mailingAddress != undefined ? contact.mailingAddress.line1 : "",
+        vsd_applicantsprimaryaddressline2: contact.mailingAddress != undefined ? contact.mailingAddress.line2 : "",
+        vsd_applicantsprimaryaddressline3: contact.mailingAddress != undefined ? contact.mailingAddress.postalCode : "",
+      });
+    }
+  });
+
+  return ret;
+}
 function getCRMProviderCollection(application: iRestitutionApplication) {
     let ret: iCRMParticipant[] = [];
     let enumHelper = new EnumHelper();
@@ -114,6 +132,15 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
     if (application.RestitutionInformation.authorizeDesignate && application.RestitutionInformation.designate.length > 0) {
         let designate = application.RestitutionInformation.designate[0];
         //add designate...
+
+      var primaryContact = application.RestitutionInformation.contactInformation.entityContacts
+        .filter(k => k.isPrimaryEntityContact == true)[0];
+      if (primaryContact == null || primaryContact == undefined) {
+        primaryContact == application.RestitutionInformation.contactInformation.entityContacts[0];
+      }
+      application.RestitutionInformation.contactInformation.entityContacts.forEach(contact => {
+       
+    
         let toAdd: iCRMParticipant = {
             vsd_firstname: designate.firstName,
             vsd_lastname: designate.lastName,
@@ -122,20 +149,21 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
             vsd_relationship1: "Designate",
 
             //set contact info
-            vsd_addressline1: application.RestitutionInformation.contactInformation.mailingAddress.line1,
-            vsd_addressline2: application.RestitutionInformation.contactInformation.mailingAddress.line2,
-            vsd_city: application.RestitutionInformation.contactInformation.mailingAddress.city,
-            vsd_province: application.RestitutionInformation.contactInformation.mailingAddress.province,
-            vsd_postalcode: application.RestitutionInformation.contactInformation.mailingAddress.postalCode,
-            vsd_country: application.RestitutionInformation.contactInformation.mailingAddress.country,
-            vsd_phonenumber: application.RestitutionInformation.contactInformation.phoneNumber,
-            vsd_alternatephonenumber: application.RestitutionInformation.contactInformation.alternatePhoneNumber,
-            vsd_email: application.RestitutionInformation.contactInformation.email,
-            vsd_voicemailoptions: application.RestitutionInformation.contactInformation.leaveVoicemail,
-            vsd_preferredmethodofcontact: convertToParticipantMethodOfContact(application.RestitutionInformation.contactInformation.preferredMethodOfContact),
-        };
+            vsd_addressline1: contact.mailingAddress.line1,
+            vsd_addressline2: contact.mailingAddress.line2,
+            vsd_city: contact.mailingAddress.city,
+            vsd_province: contact.mailingAddress.province,
+            vsd_postalcode: contact.mailingAddress.postalCode,
+            vsd_country: contact.mailingAddress.country,
+            vsd_phonenumber: contact.phoneNumber,
+            vsd_alternatephonenumber: contact.alternatePhoneNumber,
+            vsd_email: contact.email,
+            vsd_voicemailoptions: contact.leaveVoicemail,
+            vsd_preferredmethodofcontact: convertToParticipantMethodOfContact(contact.preferredMethodOfContact),
+      };
+     
 
-        switch (application.RestitutionInformation.contactInformation.preferredMethodOfContact) {
+      switch (primaryContact.preferredMethodOfContact) {
             case enumHelper.ContactMethods.BLANK.val:
                 toAdd.vsd_restcontactpreferenceforupdates = enumHelper.ParticipantRestitutionContactMethods.BLANK.val;
                 break;
@@ -150,13 +178,14 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
                 break;
         }
 
-        if (application.RestitutionInformation.contactInformation.smsPreferred == CRMBoolean.True) {
+        if (primaryContact.smsPreferred == CRMBoolean.True) {
             toAdd.vsd_restcontactpreferenceforupdates = enumHelper.ParticipantRestitutionContactMethods.SMS.val;
         }
 
         ret.push(toAdd);
+  
+      });
     }
-
     //victim/entity application - we save a "Victim" participant to hold the relationship to the offender... weird system
     if (application.ApplicationType.val === ResitutionForm.Victim.val || application.ApplicationType.val === ResitutionForm.VictimEntity.val) {
         application.RestitutionInformation.courtFiles.forEach(file => {
@@ -199,14 +228,18 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
         application.RestitutionInformation.contactInformation.entityContacts.forEach(c => {
             if (checkObjectHasValue(c)) {
                 ret.push({
-                    vsd_firstname: c.firstName,
-                    vsd_lastname: c.lastName,
-                    vsd_relationship1: "Representative"
+                  vsd_firstname: c.firstName,
+                  vsd_lastname: c.lastName,
+                  vsd_relationship1: "Representative",
+                  vsd_preferredmethodofcontact: c.preferredMethodOfContact,
+                  vsd_phonenumber: c.phoneNumber,
+                  vsd_alternatephonenumber: c.alternatePhoneNumber,
+                  vsd_voicemailoptions: c.leaveVoicemail,
+                  vsd_email: c.email,
                 });
             }
         })
-    }
-
+  }
     return ret;
 }
 

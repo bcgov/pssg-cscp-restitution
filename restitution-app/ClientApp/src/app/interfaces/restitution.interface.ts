@@ -42,27 +42,29 @@ export interface iDesignate {
 
 export interface iContactInformation {
   entityContacts: iEntityContact[],
-  preferredMethodOfContact: number;
-  smsPreferred?: number;
-  mailingAddress: Address;
-  attentionTo: string;
-  phoneNumber: string;
-  alternatePhoneNumber: string;
-  leaveVoicemail: number;
-  email: string;
+  //preferredMethodOfContact: number;
+  //smsPreferred?: number;
+  //mailingAddress: Address;
+  //attentionTo: string;
+  //phoneNumber: string;
+  //alternatePhoneNumber: string;
+  //leaveVoicemail: number;
+  //email: string;
 }
 
 export interface iEntityContact {
   firstName: string;
   lastName: string;
-  // title: string;
-  // isPrimaryEntityContact: boolean;
-  // preferredMethodOfContact: number;
-  // smsPreferred?: number;
-  // phoneNumber: string;
-  // alternatePhoneNumber: string;
-  // leaveVoicemail: number;
-  // email: string;
+  title: string;
+  isPrimaryEntityContact: boolean;
+  preferredMethodOfContact: number;
+  smsPreferred?: number;
+  phoneNumber: string;
+  alternatePhoneNumber: string;
+  leaveVoicemail: number;
+  email: string;
+  mailingAddress: Address;
+  attentionTo: string;
 }
 
 export interface iCourtFile {

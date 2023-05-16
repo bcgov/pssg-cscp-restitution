@@ -28,6 +28,9 @@ export class FormBase {
   }
 
   isMyControlValid(control: AbstractControl) {
+    if (control == null) {
+      console.log(control);
+    }
     return control.valid || !control.touched || control.disabled;
   }
 
