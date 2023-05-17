@@ -103,11 +103,11 @@ export class RestitutionInfoHelper {
 
     createEntityContact(fb: FormBuilder): FormGroup {
         return fb.group({
-            firstName: [''],
+          firstName: [''],
           lastName: [''],
-          contactTitle: ['', [Validators.minLength(1), Validators.maxLength(15)]],
+          contactTitle: ['', [Validators.minLength(1), Validators.maxLength(50)]],
           isPrimaryContact: [CRMBoolean.False],
-          preferredMethodOfContact: [null, [Validators.required, Validators.min(1), Validators.max(100000002)]], // Phone = 2, Email = 1, Mail = 4, Alternate Mail = 100000002
+          preferredMethodOfContact: [null, [ Validators.min(1), Validators.max(100000002)]], // Phone = 2, Email = 1, Mail = 4, Alternate Mail = 100000002
           smsPreferred: [null],
           phoneNumber: ['', [Validators.minLength(10), Validators.maxLength(15)]],
           alternatePhoneNumber: [''],

@@ -37,7 +37,7 @@ function getCRMApplication(application: iRestitutionApplication) {
   let primaryContact: iEntityContact;
   if (application.RestitutionInformation.contactInformation.entityContacts.length) {
      primaryContact = application.RestitutionInformation.contactInformation.entityContacts
-      .filter(k => k.isPrimaryEntityContact)[0];
+      .filter(k => k.isPrimaryContact)[0];
     if (primaryContact == null || primaryContact == undefined) {
       primaryContact = application.RestitutionInformation.contactInformation.entityContacts[0];
     }
@@ -65,7 +65,9 @@ function getCRMApplication(application: iRestitutionApplication) {
         vsd_applicantsemail: primaryContact.email,
         vsd_applicantsprimaryaddressline1: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.line1 : '',
         vsd_applicantsprimaryaddressline2: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.line2 : '',
-    }
+        vsd_title: primaryContact != undefined ? primaryContact.contactTitle : '',
+        vsd_isprimaryentitycontact: primaryContact != undefined ? (primaryContact.isPrimaryContact == CRMBoolean.True ? true : false) : false,
+  }
 
     if (application.RestitutionInformation.signatureName) {
         crm_application.vsd_declarationfullname = application.RestitutionInformation.signatureName;
@@ -134,7 +136,7 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
         //add designate...
 
       var primaryContact = application.RestitutionInformation.contactInformation.entityContacts
-        .filter(k => k.isPrimaryEntityContact == true)[0];
+        .filter(k => k.isPrimaryContact == CRMBoolean.True)[0];
       if (primaryContact == null || primaryContact == undefined) {
         primaryContact == application.RestitutionInformation.contactInformation.entityContacts[0];
       }
@@ -160,7 +162,10 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
             vsd_email: contact.email,
             vsd_voicemailoptions: contact.leaveVoicemail,
             vsd_preferredmethodofcontact: convertToParticipantMethodOfContact(contact.preferredMethodOfContact),
-      };
+          vsd_isprimaryentitycontact: contact.isPrimaryContact == CRMBoolean.True ? true : false,
+            vsd_title: contact.contactTitle,
+
+        };
      
 
       switch (primaryContact.preferredMethodOfContact) {
@@ -196,7 +201,6 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
                 vsd_relationship1: "Victim",
                 vsd_relationship2: "Other",
                 vsd_relationship2other: file.relationship,
-                // vsd_addressline3: application.RestitutionInformation.contactInformation.attentionTo
             });
         });
     }
@@ -231,11 +235,13 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
                   vsd_firstname: c.firstName,
                   vsd_lastname: c.lastName,
                   vsd_relationship1: "Representative",
-                  vsd_preferredmethodofcontact: c.preferredMethodOfContact,
+                  vsd_preferredmethodofcontact: convertToParticipantMethodOfContact(c.preferredMethodOfContact),
                   vsd_phonenumber: c.phoneNumber,
                   vsd_alternatephonenumber: c.alternatePhoneNumber,
                   vsd_voicemailoptions: c.leaveVoicemail,
                   vsd_email: c.email,
+                  vsd_isprimaryentitycontact: c.isPrimaryContact == CRMBoolean.True? true : false,
+                  vsd_title: c.contactTitle,
                 });
             }
         })

@@ -41,13 +41,13 @@ export class RestitutionContactInformationComponent extends FormBase implements 
     }
   primaryContactChange( index ) {
     let entityContacts = this.form.get('entityContacts') as FormArray;
-    entityContacts.at(index).get("isPrimaryContact").setValue(CRMBoolean.True);
+    //entityContacts.at(index).get("isPrimaryContact").setValue(CRMBoolean.True);
     for (var i = 0; i < entityContacts.controls.length; i++) {
       if (i != index) {
         entityContacts.at(i).get("isPrimaryContact").setValue(CRMBoolean.False);
       }
     }
-    this.form.get('entityContacts').setValue(entityContacts);
+    //this.form.get('entityContacts').setValue(entityContacts);
     }
     preferredMethodOfContactChange() {
         let preferredVal = this.form.get("preferredMethodOfContact").value;

@@ -35,7 +35,8 @@ export interface iCRMApplication {
     vsd_applicantsemail: string;
     vsd_applicantsprimaryaddressline1: string;
     vsd_applicantsprimaryaddressline2: string;
-  
+    vsd_title?: string;
+    vsd_isprimaryentitycontact?: boolean;
 
 }
 export interface iCRMCourtInfo {
@@ -67,7 +68,8 @@ export interface iCRMParticipant {
     vsd_relationship1: string;
     vsd_relationship2?: string;
     vsd_relationship2other?: string;
-    // vsd_title?: string;
+    vsd_title?: string;
+    vsd_isprimaryentitycontact?: boolean;
 }
 export interface iCRMDocument {
     filename: string;

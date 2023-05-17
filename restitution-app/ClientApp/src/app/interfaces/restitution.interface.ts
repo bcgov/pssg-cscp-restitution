@@ -1,4 +1,4 @@
-import { IOptionSetVal } from "../shared/enums-list";
+import { CRMBoolean, IOptionSetVal } from "../shared/enums-list";
 import { Address } from "./address.interface";
 
 export interface iRestitutionApplication {
@@ -55,8 +55,8 @@ export interface iContactInformation {
 export interface iEntityContact {
   firstName: string;
   lastName: string;
-  title: string;
-  isPrimaryEntityContact: boolean;
+  contactTitle: string;
+  isPrimaryContact: CRMBoolean;
   preferredMethodOfContact: number;
   smsPreferred?: number;
   phoneNumber: string;

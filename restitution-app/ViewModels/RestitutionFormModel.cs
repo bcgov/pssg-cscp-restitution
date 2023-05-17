@@ -41,6 +41,8 @@ namespace Gov.Cscp.VictimServices.Public.ViewModels
         public string vsd_applicantssignature { get; set; }
         public string vsd_declarationfullname { get; set; }
         public DateTime? vsd_declarationdate { get; set; }
+        public string vsd_title { get; set; }
+
     }
 
     public class CourtInfo
@@ -77,7 +79,8 @@ namespace Gov.Cscp.VictimServices.Public.ViewModels
         public string vsd_relationship1 { get; set; }
         public string vsd_relationship2 { get; set; }
         public string vsd_relationship2other { get; set; }
-        public string vsd_contacttitle { get; set; }
+        public bool? vsd_isprimaryentitycontact { get; set; }
+        public string vsd_title { get; set; }
     }
 
     public class DocumentCollection
