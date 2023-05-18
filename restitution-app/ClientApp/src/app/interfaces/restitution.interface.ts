@@ -31,6 +31,8 @@ export interface RestitutionInformation {
   signatureName?: string;
   // signerTitle?: string;
   signatureDate?: Date;
+  offendercustodylocation?: string;
+
 }
 
 export interface iDesignate {

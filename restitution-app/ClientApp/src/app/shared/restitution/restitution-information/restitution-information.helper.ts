@@ -20,7 +20,8 @@ export class RestitutionInfoHelper {
             indigenousStatus: [null, [Validators.required, Validators.min(100000000), Validators.max(100000004)]],
 
             authorizeDesignate: ['', Validators.required],
-            designate: fb.array([]),
+          designate: fb.array([]),
+          offendercustodylocation: [''],
 
             contactInformation: fb.group({
                 entityContacts: fb.array([this.createEntityContact(fb)]),
