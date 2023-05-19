@@ -65,8 +65,8 @@ function getCRMApplication(application: iRestitutionApplication) {
         vsd_applicantsemail: primaryContact.email,
         vsd_applicantsprimaryaddressline1: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.line1 : '',
         vsd_applicantsprimaryaddressline2: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.line2 : '',
-        vsd_title: primaryContact != undefined ? primaryContact.contactTitle : '',
-        vsd_isprimaryentitycontact: primaryContact != undefined ? (primaryContact.isPrimaryContact == CRMBoolean.True ? true : false) : false,
+        vsd_contacttitle: primaryContact != undefined ? primaryContact.contactTitle : '',
+        
   }
 
     if (application.RestitutionInformation.signatureName) {
@@ -162,7 +162,7 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
             vsd_email: contact.email,
             vsd_voicemailoptions: contact.leaveVoicemail,
             vsd_preferredmethodofcontact: convertToParticipantMethodOfContact(contact.preferredMethodOfContact),
-          vsd_isprimaryentitycontact: contact.isPrimaryContact == CRMBoolean.True ? true : false,
+            vsd_isprimaryentitycontact: primaryContact != undefined ? primaryContact.isPrimaryContact : CRMBoolean.False,
             vsd_title: contact.contactTitle,
 
         };
@@ -240,7 +240,7 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
                   vsd_alternatephonenumber: c.alternatePhoneNumber,
                   vsd_voicemailoptions: c.leaveVoicemail,
                   vsd_email: c.email,
-                  vsd_isprimaryentitycontact: c.isPrimaryContact == CRMBoolean.True? true : false,
+                  vsd_isprimaryentitycontact: c.isPrimaryContact,
                   vsd_title: c.contactTitle,
                 });
             }

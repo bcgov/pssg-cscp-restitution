@@ -1,3 +1,5 @@
+import { CRMBoolean } from "../../shared/enums-list";
+
 export interface iRestitutionCRM {
     Application: iCRMApplication;
     CourtInfoCollection?: iCRMCourtInfo[];
@@ -35,8 +37,7 @@ export interface iCRMApplication {
     vsd_applicantsemail: string;
     vsd_applicantsprimaryaddressline1: string;
     vsd_applicantsprimaryaddressline2: string;
-    vsd_title?: string;
-    vsd_isprimaryentitycontact?: boolean;
+    vsd_contacttitle?: string;
 
 }
 export interface iCRMCourtInfo {
@@ -69,7 +70,7 @@ export interface iCRMParticipant {
     vsd_relationship2?: string;
     vsd_relationship2other?: string;
     vsd_title?: string;
-    vsd_isprimaryentitycontact?: boolean;
+    vsd_isprimaryentitycontact?: number;
 }
 export interface iCRMDocument {
     filename: string;
