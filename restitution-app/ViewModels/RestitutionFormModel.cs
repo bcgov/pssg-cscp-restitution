@@ -42,7 +42,6 @@ namespace Gov.Cscp.VictimServices.Public.ViewModels
         public string vsd_declarationfullname { get; set; }
         public DateTime? vsd_declarationdate { get; set; }
         public string vsd_offendercustodylocation { get; set; }
-
     }
 
     public class CourtInfo

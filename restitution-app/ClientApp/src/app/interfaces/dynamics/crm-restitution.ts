@@ -33,8 +33,8 @@ export interface iCRMApplication {
     
     vsd_declarationfullname?: string;
     vsd_declarationdate?: Date;
-  vsd_applicantssignature: string;
-  vsd_offendercustodylocation: string;
+    vsd_applicantssignature: string;
+    vsd_offendercustodylocation: string;
 }
 export interface iCRMCourtInfo {
     vsd_courtfilenumber: string;
