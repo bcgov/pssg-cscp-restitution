@@ -104,20 +104,67 @@
 
         <ng-container *ngIf="formType.val === ResitutionForm.VictimEntity.val">
             <table class="table table-striped review-table" *ngFor="let item of contactsToDisplay['controls']; let i = index">
-                <tbody>
-                    <tr>
-                        <th>Contact First Name</th>
-                        <td>{{ valueOrEmpty(item.get('firstName')) }}</td>
-                    </tr>
-                    <tr>
-                        <th>Contact Last Name</th>
-                        <td>{{ valueOrEmpty(item.get('lastName')) }}</td>
-                    </tr>
-                </tbody>
+              <tbody>
+                <tr>
+                  <th>Contact Title</th>
+                  <td>{{ valueOrEmpty(item.get('contactTitle')) }}</td>
+                </tr>
+                <tr>
+                  <th>Contact Last Name</th>
+                  <td>{{ valueOrEmpty(item.get('firstName')) }}</td>
+                </tr>
+                <tr>
+                  <th>Contact Last Name</th>
+                  <td>{{ valueOrEmpty(item.get('lastName')) }}</td>
+                </tr>
+                <tr>
+                  <th>Is Primary Entity Contact</th>
+
+                  <td *ngIf="valueOrEmpty(item.get('isPrimaryContact')) == 100000001"> Yes </td>
+                  <td *ngIf="valueOrEmpty(item.get('isPrimaryContact')) == 100000000"> No </td>
+
+                </tr>
+                <tr>
+                  <th>Preferred Method Of Contact</th>
+                  <td>
+                    {{ getOptionSetNameFromVal(enumHelper.ContactMethods, valueOrEmpty(item.get('preferredMethodOfContact'))) }}
+                  </td>
+                </tr>
+                <tr>
+                  <th>SMS Preferred</th>
+                  <td *ngIf="valueOrEmpty(item.get('smsPreferred')) == 100000001"> Yes </td>
+                  <td *ngIf="valueOrEmpty(item.get('smsPreferred')) == 100000000"> No </td>
+
+                </tr>
+                <tr>
+                  <th>Phone Number</th>
+                  <td>{{ valueOrEmpty(item.get('phoneNumber')) }}</td>
+                </tr>
+                <tr>
+                  <th>Alternate Phone Number</th>
+                  <td>{{ valueOrEmpty(item.get('alternatePhoneNumber')) }}</td>
+                </tr>
+                <tr>
+                  <th>Leave Voicemail</th>
+                  <td *ngIf="valueOrEmpty(item.get('leaveVoicemail'))=='100000000'">Primary and Alternate</td>
+                  <td *ngIf="valueOrEmpty(item.get('leaveVoicemail'))=='100000001'">Primary only</td>
+                  <td *ngIf="valueOrEmpty(item.get('leaveVoicemail'))=='100000002'">Alternate only</td>
+                  <td *ngIf="valueOrEmpty(item.get('leaveVoicemail'))=='100000003'">No Voicemail</td>
+                  <td *ngIf="valueOrEmpty(item.get('leaveVoicemail'))==0"></td>
+                </tr>
+                <tr>
+                  <th>Email</th>
+                  <td>{{ valueOrEmpty(item.get('email')) }}</td>
+                </tr>
+                <!--<tr>
+                  <th>Attention To</th>
+                  <td>{{ valueOrEmpty(item.get('attentionTo')) }}</td>
+                </tr>-->
+              </tbody>
             </table>
         </ng-container>
 
-        <table class="table table-striped review-table">
+        <!--<table class="table table-striped review-table">
             <tbody>
                 <tr>
                     <th>Preferred Method of Contact</th>
@@ -125,7 +172,7 @@
                     </td>
                 </tr>
             </tbody>
-        </table>
+        </table>-->
 
         <h3>Mailing Address</h3>
         <table class="table table-striped review-table">
@@ -141,28 +188,7 @@
             </tbody>
         </table>
 
-        <h3>Communication</h3>
-        <table class="table table-striped review-table">
-            <tbody>
-                <tr>
-                    <th>Primary Phone Number</th>
-                    <td>{{ valueOrEmpty('restitutionInformation.contactInformation.phoneNumber') | phone }} </td>
-                </tr>
-                <tr>
-                    <th>Alternate Phone Number</th>
-                    <td>{{ valueOrEmpty('restitutionInformation.contactInformation.alternatePhoneNumber') | phone }} </td>
-                </tr>
-                <tr>
-                    <th>Leave Voicemail?</th>
-                    <td>{{ getOptionSetNameFromVal(enumHelper.LeaveVoicemail, valueOrEmpty('restitutionInformation.contactInformation.leaveVoicemail')) }}
-                    </td>
-                </tr>
-                <tr>
-                    <th>Email Address</th>
-                    <td>{{ valueOrEmpty('restitutionInformation.contactInformation.email') }} </td>
-                </tr>
-            </tbody>
-        </table>
+        
     </ng-container>
 
     <ng-container *ngIf="formType.val === ResitutionForm.Offender.val">

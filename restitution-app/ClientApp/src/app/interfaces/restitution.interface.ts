@@ -1,4 +1,4 @@
-import { IOptionSetVal } from "../shared/enums-list";
+import { CRMBoolean, IOptionSetVal } from "../shared/enums-list";
 import { Address } from "./address.interface";
 
 export interface iRestitutionApplication {
@@ -43,27 +43,29 @@ export interface iDesignate {
 
 export interface iContactInformation {
   entityContacts: iEntityContact[],
-  preferredMethodOfContact: number;
-  smsPreferred?: number;
-  mailingAddress: Address;
-  attentionTo: string;
-  phoneNumber: string;
-  alternatePhoneNumber: string;
-  leaveVoicemail: number;
-  email: string;
+  //preferredMethodOfContact: number;
+  //smsPreferred?: number;
+  //mailingAddress: Address;
+  //attentionTo: string;
+  //phoneNumber: string;
+  //alternatePhoneNumber: string;
+  //leaveVoicemail: number;
+  //email: string;
 }
 
 export interface iEntityContact {
   firstName: string;
   lastName: string;
-  // title: string;
-  // isPrimaryEntityContact: boolean;
-  // preferredMethodOfContact: number;
-  // smsPreferred?: number;
-  // phoneNumber: string;
-  // alternatePhoneNumber: string;
-  // leaveVoicemail: number;
-  // email: string;
+  contactTitle: string;
+  isPrimaryContact: CRMBoolean;
+  preferredMethodOfContact: number;
+  smsPreferred?: number;
+  phoneNumber: string;
+  alternatePhoneNumber: string;
+  leaveVoicemail: number;
+  email: string;
+  mailingAddress: Address;
+  attentionTo: string;
 }
 
 export interface iCourtFile {
