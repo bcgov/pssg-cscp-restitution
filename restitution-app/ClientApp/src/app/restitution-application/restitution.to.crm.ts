@@ -65,6 +65,7 @@ function getCRMApplication(application: iRestitutionApplication) {
         vsd_applicantsemail: primaryContact.email,
         vsd_applicantsprimaryaddressline1: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.line1 : '',
         vsd_applicantsprimaryaddressline2: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.line2 : '',
+        vsd_applicantsprimaryaddressline3: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.attentionTo : '',
         vsd_voicemailoption: null,
         vsd_contacttitle: primaryContact != undefined ? primaryContact.contactTitle : '',
         vsd_offendercustodylocation: application.RestitutionInformation.offendercustodylocation
