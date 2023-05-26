@@ -53,6 +53,7 @@ function getCRMApplication(application: iRestitutionApplication) {
         vsd_applicantsprimarycountry: '',
         vsd_voicemailoption: null,
         vsd_applicantssignature: application.RestitutionInformation.signature,
+        vsd_offendercustodylocation: application.RestitutionInformation.offendercustodylocation
     }
 
     if (application.RestitutionInformation.signatureName) {

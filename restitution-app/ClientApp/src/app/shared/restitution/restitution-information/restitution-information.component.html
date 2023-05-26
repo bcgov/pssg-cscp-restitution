@@ -118,12 +118,19 @@
         </div>
 
         <ng-container>
-            <div class="row">
-                <div class="col-12">
-                    <h3 *ngIf="formType.val === ResitutionForm.Victim.val">Authorized Victim Designate</h3>
-                    <h3 *ngIf="formType.val === ResitutionForm.Offender.val">Authorized Applicant Designate</h3>
-                </div>
+          <div class="row">
+            <div class="col-6">
+              <h3 *ngIf="formType.val === ResitutionForm.Victim.val">Authorized Victim Designate</h3>
+              <h3 *ngIf="formType.val === ResitutionForm.Offender.val">Authorized Applicant Designate</h3>
             </div>
+            
+              <div class="col-md-6">
+                <app-field label="Offender Custody Location" [valid]="isMyControlValid(form.get('offendercustodylocation'))" errorMessage="Please enter the offender custody location" [disabled]="isDisabled">
+                  <input class="form-control" type="text" formControlName="offendercustodylocation" maxlength="100">
+                </app-field>
+              </div>
+            
+          </div>
             <div class="row">
                 <div class="col-12">
                     <app-field [label]="'Do you want to authorize someone to be ' + (formType.val === ResitutionForm.Victim.val ? 'a Victim' : 'an Applicant') + ' Designate?'" [required]="true" [valid]="isMyControlValid(form.get('authorizeDesignate'))" errorMessage="Please make a selection" [disabled]="isDisabled">
@@ -434,3 +441,4 @@
         </tbody>
     </table>
 </ng-template>
+
