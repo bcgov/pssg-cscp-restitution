@@ -43,6 +43,7 @@ namespace Gov.Cscp.VictimServices.Public.ViewModels
         public DateTime? vsd_declarationdate { get; set; }
         public string vsd_contacttitle { get; set; }
 
+        public string vsd_offendercustodylocation { get; set; }
     }
 
     public class CourtInfo

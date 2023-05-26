@@ -23,40 +23,44 @@
             {{applicant_type}} Information <span class="hide-for-print"><button (click)="gotoPageAndEdit(PAGES.RESTITUTION_INFORMATION, 'ApplicantInformation');" class="btn review-btn"><i class="fa fa-pencil"></i> VIEW AND EDIT</button></span>
         </h2>
         <table class="table table-striped review-table">
-            <tbody>
-                <tr>
-                    <th>First Name</th>
-                    <td>{{ valueOrEmpty('restitutionInformation.firstName') }} </td>
-                </tr>
-                <tr>
-                    <th>Middle Name</th>
-                    <td>{{ valueOrEmpty('restitutionInformation.middleName') }} </td>
-                </tr>
-                <tr>
-                    <th>Last Name</th>
-                    <td>{{ valueOrEmpty('restitutionInformation.lastName') }} </td>
-                </tr>
-                <tr>
-                    <th>Other First Name</th>
-                    <td>{{ valueOrEmpty('restitutionInformation.otherFirstName') }} </td>
-                </tr>
-                <tr>
-                    <th>Other Last Name</th>
-                    <td>{{ valueOrEmpty('restitutionInformation.otherLastName') }} </td>
-                </tr>
-                <tr>
-                    <th>Birth Date</th>
-                    <td>{{ valueOrEmpty('restitutionInformation.birthDate', '') | date }}</td>
-                </tr>
-                <tr>
-                    <th>Gender</th>
-                    <td>{{ enumHelper.Gender[valueForEnum('restitutionInformation.gender')] }} </td>
-                </tr>
-                <tr>
-                    <th>Do you identify as an Indigenous person?</th>
-                    <td>{{ getOptionSetNameFromVal(enumHelper.IndigenousStatus, valueOrEmpty('restitutionInformation.indigenousStatus')) }}</td>
-                </tr>
-            </tbody>
+          <tbody>
+            <tr>
+              <th>First Name</th>
+              <td>{{ valueOrEmpty('restitutionInformation.firstName') }} </td>
+            </tr>
+            <tr>
+              <th>Middle Name</th>
+              <td>{{ valueOrEmpty('restitutionInformation.middleName') }} </td>
+            </tr>
+            <tr>
+              <th>Last Name</th>
+              <td>{{ valueOrEmpty('restitutionInformation.lastName') }} </td>
+            </tr>
+            <tr>
+              <th>Other First Name</th>
+              <td>{{ valueOrEmpty('restitutionInformation.otherFirstName') }} </td>
+            </tr>
+            <tr>
+              <th>Other Last Name</th>
+              <td>{{ valueOrEmpty('restitutionInformation.otherLastName') }} </td>
+            </tr>
+            <tr>
+              <th>Birth Date</th>
+              <td>{{ valueOrEmpty('restitutionInformation.birthDate', '') | date }}</td>
+            </tr>
+            <tr>
+              <th>Gender</th>
+              <td>{{ enumHelper.Gender[valueForEnum('restitutionInformation.gender')] }} </td>
+            </tr>
+            <tr>
+              <th>Do you identify as an Indigenous person?</th>
+              <td>{{ getOptionSetNameFromVal(enumHelper.IndigenousStatus, valueOrEmpty('restitutionInformation.indigenousStatus')) }}</td>
+            </tr>
+            <tr>
+              <th>Offender Custody Location</th>
+              <td>{{ valueOrEmpty('restitutionInformation.offendercustodylocation') }}</td>
+            </tr>
+          </tbody>
         </table>
 
         <ng-container *ngIf="formType.val === ResitutionForm.Victim.val">
@@ -340,3 +344,4 @@
         </table>
     </ng-container>
 </div>
+

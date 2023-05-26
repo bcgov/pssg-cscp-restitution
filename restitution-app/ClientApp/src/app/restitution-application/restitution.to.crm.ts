@@ -69,6 +69,23 @@ function getCRMApplication(application: iRestitutionApplication) {
         
   }
 
+        vsd_applicantspreferredmethodofcontact: null,
+        vsd_smspreferred: null,
+        vsd_applicantsprimaryphonenumber: '',
+        vsd_applicantsalternatephonenumber: '',
+        vsd_applicantsemail: '',
+        vsd_applicantsprimaryaddressline1: '',
+        vsd_applicantsprimaryaddressline2: '',
+        vsd_applicantsprimaryaddressline3: application.RestitutionInformation.contactInformation.attentionTo,
+        vsd_applicantsprimarycity: '',
+        vsd_applicantsprimaryprovince: '',
+        vsd_applicantsprimarypostalcode: '',
+        vsd_applicantsprimarycountry: '',
+        vsd_voicemailoption: null,
+        vsd_applicantssignature: application.RestitutionInformation.signature,
+        vsd_offendercustodylocation: application.RestitutionInformation.offendercustodylocation
+    }
+
     if (application.RestitutionInformation.signatureName) {
         crm_application.vsd_declarationfullname = application.RestitutionInformation.signatureName;
     }
