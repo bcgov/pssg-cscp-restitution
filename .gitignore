@@ -1,0 +1,10 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/restitution-app/ClientApp/package-lock.json
+/.gitignore
+/.gitignore
+/.vs
+/.gitignore
+/.vs/VSWorkspaceState.json
