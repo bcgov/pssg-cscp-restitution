@@ -77,3 +77,4 @@ export class RestitutionReviewComponent extends FormBase implements OnInit {
         }, 100);
     }
 }
+
