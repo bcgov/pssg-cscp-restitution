@@ -72,3 +72,4 @@ export interface iCRMDocument {
     body: string;
     subject?: string;
 }
+
