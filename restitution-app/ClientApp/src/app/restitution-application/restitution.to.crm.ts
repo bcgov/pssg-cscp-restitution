@@ -65,24 +65,8 @@ function getCRMApplication(application: iRestitutionApplication) {
         vsd_applicantsemail: primaryContact.email,
         vsd_applicantsprimaryaddressline1: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.line1 : '',
         vsd_applicantsprimaryaddressline2: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.line2 : '',
-        vsd_contacttitle: primaryContact != undefined ? primaryContact.contactTitle : '',
-        
-  }
-
-        vsd_applicantspreferredmethodofcontact: null,
-        vsd_smspreferred: null,
-        vsd_applicantsprimaryphonenumber: '',
-        vsd_applicantsalternatephonenumber: '',
-        vsd_applicantsemail: '',
-        vsd_applicantsprimaryaddressline1: '',
-        vsd_applicantsprimaryaddressline2: '',
-        vsd_applicantsprimaryaddressline3: application.RestitutionInformation.contactInformation.attentionTo,
-        vsd_applicantsprimarycity: '',
-        vsd_applicantsprimaryprovince: '',
-        vsd_applicantsprimarypostalcode: '',
-        vsd_applicantsprimarycountry: '',
         vsd_voicemailoption: null,
-        vsd_applicantssignature: application.RestitutionInformation.signature,
+        vsd_contacttitle: primaryContact != undefined ? primaryContact.contactTitle : '',
         vsd_offendercustodylocation: application.RestitutionInformation.offendercustodylocation
     }
 
