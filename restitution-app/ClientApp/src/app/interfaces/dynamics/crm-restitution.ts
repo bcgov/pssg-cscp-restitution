@@ -27,6 +27,7 @@ export interface iCRMApplication {
     vsd_cvap_offenderlastname?: string;
     
     vsd_declarationfullname?: string;
+    vsd_declarationsignertitle?: string;
     vsd_declarationdate?: Date;
     vsd_applicantssignature: string;
     vsd_offendercustodylocation: string;
