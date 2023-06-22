@@ -76,7 +76,7 @@ function getCRMApplication(application: iRestitutionApplication) {
     }
 
   if (application.RestitutionInformation.signerTitle) {
-    crm_application.vsd_declarationsignertitle = application.RestitutionInformation.signerTitle;
+    crm_application.vsd_signingofficertitle = application.RestitutionInformation.signerTitle;
   }
 
     if (application.RestitutionInformation.signatureDate) {

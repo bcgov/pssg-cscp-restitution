@@ -40,7 +40,7 @@ namespace Gov.Cscp.VictimServices.Public.ViewModels
         public int? vsd_voicemailoption { get; set; }
         public string vsd_applicantssignature { get; set; }
         public string vsd_declarationfullname { get; set; }
-        public string vsd_declarationsignertitle { get; set; }
+        public string vsd_signingofficertitle { get; set; }
         public DateTime? vsd_declarationdate { get; set; }
         public string vsd_contacttitle { get; set; }
         public string vsd_offendercustodylocation { get; set; }
