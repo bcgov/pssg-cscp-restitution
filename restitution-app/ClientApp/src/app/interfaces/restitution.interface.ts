@@ -29,7 +29,7 @@ export interface RestitutionInformation {
   declaredAndSigned: string;
   signature: string;
   signatureName?: string;
-  // signerTitle?: string;
+  signerTitle?: string;
   signatureDate?: Date;
   offendercustodylocation?: string;
 }
