@@ -42,35 +42,55 @@ function getCRMApplication(application: iRestitutionApplication) {
       primaryContact = application.RestitutionInformation.contactInformation.entityContacts[0];
     }
   }
-
+  
   let crm_application: iCRMApplication = {
-        vsd_applicanttype: application.ApplicationType.val == ResitutionForm.VictimEntity.val ? ResitutionForm.Victim.val : application.ApplicationType.val, //annoying handling for "victim entity"
-        vsd_applicantsfirstname: primaryContact != undefined ? primaryContact.firstName : application.RestitutionInformation.firstName,
-        vsd_applicantsmiddlename: application.RestitutionInformation.middleName,
-        vsd_applicantslastname: primaryContact != undefined ? primaryContact.firstName : application.RestitutionInformation.lastName,
-        vsd_otherfirstname: application.RestitutionInformation.otherFirstName,
-        vsd_otherlastname: application.RestitutionInformation.otherLastName,
-        vsd_applicantsgendercode: application.RestitutionInformation.gender,
-        vsd_applicantsbirthdate: application.RestitutionInformation.birthDate,
-        vsd_indigenous: application.RestitutionInformation.indigenousStatus,
-        vsd_applicantsprimarycity: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.city : '',
-        vsd_applicantsprimaryprovince: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.province : '',
-        vsd_applicantsprimarypostalcode: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.postalCode : '',
-        vsd_applicantsprimarycountry: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.country : '',
-        vsd_applicantssignature: application.RestitutionInformation.signature,
-        vsd_smspreferred: primaryContact.smsPreferred,
-        vsd_applicantspreferredmethodofcontact: primaryContact.preferredMethodOfContact,
-        vsd_applicantsprimaryphonenumber: primaryContact.phoneNumber,
-        vsd_applicantsalternatephonenumber: primaryContact.alternatePhoneNumber,
-        vsd_applicantsemail: primaryContact.email,
-        vsd_applicantsprimaryaddressline1: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.line1 : '',
-        vsd_applicantsprimaryaddressline2: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.line2 : '',
-        vsd_applicantsprimaryaddressline3: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.attentionTo : '',
-        vsd_voicemailoption: null,
-        vsd_contacttitle: primaryContact != undefined ? primaryContact.contactTitle : '',
-        vsd_offendercustodylocation: application.RestitutionInformation.offendercustodylocation
+      vsd_applicanttype: application.ApplicationType.val == ResitutionForm.VictimEntity.val ? ResitutionForm.Victim.val : application.ApplicationType.val, //annoying handling for "victim entity"
+      vsd_applicantsfirstname: primaryContact != undefined ? primaryContact.firstName : application.RestitutionInformation.firstName,
+      vsd_applicantsmiddlename: application.RestitutionInformation.middleName,
+      vsd_applicantslastname: primaryContact != undefined ? primaryContact.firstName : application.RestitutionInformation.lastName,
+      vsd_otherfirstname: application.RestitutionInformation.otherFirstName,
+      vsd_otherlastname: application.RestitutionInformation.otherLastName,
+      vsd_applicantsgendercode: application.RestitutionInformation.gender,
+      vsd_applicantsbirthdate: application.RestitutionInformation.birthDate,
+      vsd_indigenous: application.RestitutionInformation.indigenousStatus,
+      vsd_applicantsprimarycity: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.city : '',
+      vsd_applicantsprimaryprovince: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.province : '',
+      vsd_applicantsprimarypostalcode: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.postalCode : '',
+      vsd_applicantsprimarycountry: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.country : '',
+      vsd_applicantssignature: application.RestitutionInformation.signature,
+      vsd_smspreferred: primaryContact.smsPreferred,
+      vsd_applicantspreferredmethodofcontact: primaryContact.preferredMethodOfContact,
+      vsd_applicantsprimaryphonenumber: primaryContact.phoneNumber,
+      vsd_applicantsalternatephonenumber: primaryContact.alternatePhoneNumber,
+      vsd_applicantsemail: primaryContact.email,
+      vsd_applicantsprimaryaddressline1: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.line1 : '',
+      vsd_applicantsprimaryaddressline2: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.line2 : '',
+      vsd_applicantsprimaryaddressline3: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.attentionTo : '',
+      vsd_voicemailoption: null,
+      vsd_contacttitle: primaryContact != undefined ? primaryContact.contactTitle : '',
+      vsd_offendercustodylocation: application.RestitutionInformation.offendercustodylocation
     }
 
+    if (application.ApplicationType.val !== ResitutionForm.VictimEntity.val) {
+    let hasDesignate = (application.RestitutionInformation.authorizeDesignate && application.RestitutionInformation.designate.length > 0);
+
+    if (!hasDesignate) {
+      crm_application.vsd_applicantspreferredmethodofcontact = application.RestitutionInformation.contactInformation.preferredMethodOfContact;
+      crm_application.vsd_smspreferred = application.RestitutionInformation.contactInformation.smsPreferred;
+      crm_application.vsd_applicantsprimaryphonenumber = application.RestitutionInformation.contactInformation.phoneNumber;
+      crm_application.vsd_applicantsalternatephonenumber = application.RestitutionInformation.contactInformation.alternatePhoneNumber;
+      crm_application.vsd_applicantsemail = application.RestitutionInformation.contactInformation.email;
+      crm_application.vsd_applicantsprimaryaddressline1 = application.RestitutionInformation.contactInformation.mailingAddress.line1;
+      crm_application.vsd_applicantsprimaryaddressline2 = application.RestitutionInformation.contactInformation.mailingAddress.line2;
+      crm_application.vsd_applicantsprimarycity = application.RestitutionInformation.contactInformation.mailingAddress.city;
+      crm_application.vsd_applicantsprimaryprovince = application.RestitutionInformation.contactInformation.mailingAddress.province;
+      crm_application.vsd_applicantsprimarypostalcode = application.RestitutionInformation.contactInformation.mailingAddress.postalCode;
+      crm_application.vsd_applicantsprimarycountry = application.RestitutionInformation.contactInformation.mailingAddress.country;
+      crm_application.vsd_voicemailoption = application.RestitutionInformation.contactInformation.leaveVoicemail;
+    }
+
+  }
+ 
     if (application.RestitutionInformation.signatureName) {
         crm_application.vsd_declarationfullname = application.RestitutionInformation.signatureName;
     }

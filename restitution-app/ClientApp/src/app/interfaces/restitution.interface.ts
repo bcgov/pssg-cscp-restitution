@@ -43,14 +43,14 @@ export interface iDesignate {
 
 export interface iContactInformation {
   entityContacts: iEntityContact[],
-  //preferredMethodOfContact: number;
-  //smsPreferred?: number;
-  //mailingAddress: Address;
-  //attentionTo: string;
-  //phoneNumber: string;
-  //alternatePhoneNumber: string;
-  //leaveVoicemail: number;
-  //email: string;
+  preferredMethodOfContact: number;
+  smsPreferred?: number;
+  mailingAddress: Address;
+  attentionTo: string;
+  phoneNumber: string;
+  alternatePhoneNumber: string;
+  leaveVoicemail: number;
+  email: string;
 }
 
 export interface iEntityContact {

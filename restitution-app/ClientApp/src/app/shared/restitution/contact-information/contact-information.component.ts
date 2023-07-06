@@ -108,7 +108,7 @@ export class RestitutionContactInformationComponent extends FormBase implements 
 
     addContact() {
       let entityContacts = this.form.get('entityContacts') as FormArray;
-      var contact = this.restitutionInfoHelper.createEntityContact(this.fb);
+      var contact = this.restitutionInfoHelper.createEntityContact(this.fb, this.formType);
       contact.get("isPrimaryContact").setValue(CRMBoolean.False);
       entityContacts.push(contact);
     }
