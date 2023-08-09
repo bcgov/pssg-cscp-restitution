@@ -68,7 +68,8 @@ function getCRMApplication(application: iRestitutionApplication) {
       vsd_applicantsprimaryaddressline3: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.attentionTo : '',
       vsd_voicemailoption: null,
       vsd_contacttitle: primaryContact != undefined ? primaryContact.contactTitle : '',
-      vsd_offendercustodylocation: application.RestitutionInformation.offendercustodylocation
+      //NOTE: VS-6380 This field was remapped from contact entity as per business ask.   
+      vsd_offendercustodylocation: application.RestitutionInformation.probationOfficerCustodyLocation,
     }
 
     if (application.ApplicationType.val !== ResitutionForm.VictimEntity.val) {
@@ -191,6 +192,7 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
             vsd_isprimaryentitycontact: primaryContact != undefined ? primaryContact.isPrimaryContact : CRMBoolean.False,
             vsd_title: contact.contactTitle,
 
+
         };
      
 
@@ -237,7 +239,6 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
             vsd_lastname: application.RestitutionInformation.probationOfficerLastName,
             vsd_phonenumber: application.RestitutionInformation.probationOfficerPhoneNumber,
             vsd_email: application.RestitutionInformation.probationOfficerEmail,
-            vsd_rest_custodylocation: application.RestitutionInformation.probationOfficerCustodyLocation,
             vsd_relationship1: "Probation Officer",
         });
     }
