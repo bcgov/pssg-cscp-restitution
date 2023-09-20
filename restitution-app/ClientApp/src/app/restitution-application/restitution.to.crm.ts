@@ -35,15 +35,16 @@ export function convertRestitutionToCRM(application: iRestitutionApplication) {
 
 function getCRMApplication(application: iRestitutionApplication) {
   let primaryContact: iEntityContact;
-  if (application.RestitutionInformation.contactInformation.entityContacts.length) {
+  if (application.RestitutionInformation.contactInformation.entityContacts.length > 0) {
      primaryContact = application.RestitutionInformation.contactInformation.entityContacts
       .filter(k => k.isPrimaryContact)[0];
     if (primaryContact == null || primaryContact == undefined) {
       primaryContact = application.RestitutionInformation.contactInformation.entityContacts[0];
     }
   }
-  
-  let crm_application: iCRMApplication = {
+  var crm_application: iCRMApplication;
+  if (application.ApplicationType.val == ResitutionForm.VictimEntity.val) {
+    crm_application = {
       vsd_applicanttype: application.ApplicationType.val == ResitutionForm.VictimEntity.val ? ResitutionForm.Victim.val : application.ApplicationType.val, //annoying handling for "victim entity"
       vsd_applicantsfirstname: primaryContact != undefined ? primaryContact.firstName : application.RestitutionInformation.firstName,
       vsd_applicantsmiddlename: application.RestitutionInformation.middleName,
@@ -71,6 +72,38 @@ function getCRMApplication(application: iRestitutionApplication) {
       //NOTE: VS-6380 This field was remapped from contact entity as per business ask.   
       vsd_offendercustodylocation: application.RestitutionInformation.probationOfficerCustodyLocation,
     }
+  } else {
+    crm_application = {
+      vsd_applicanttype: application.ApplicationType.val == ResitutionForm.VictimEntity.val ? ResitutionForm.Victim.val : application.ApplicationType.val, //annoying handling for "victim entity"
+      vsd_applicantsfirstname: application.RestitutionInformation.firstName,
+      vsd_applicantsmiddlename: application.RestitutionInformation.middleName,
+      vsd_applicantslastname: application.RestitutionInformation.lastName,
+      vsd_otherfirstname: application.RestitutionInformation.otherFirstName,
+      vsd_otherlastname: application.RestitutionInformation.otherLastName,
+      vsd_applicantsgendercode: application.RestitutionInformation.gender,
+      vsd_applicantsbirthdate: application.RestitutionInformation.birthDate,
+      vsd_indigenous: application.RestitutionInformation.indigenousStatus,
+
+      vsd_applicantspreferredmethodofcontact: null,
+      vsd_smspreferred: null,
+      vsd_applicantsprimaryphonenumber: '',
+      vsd_applicantsalternatephonenumber: '',
+      vsd_applicantsemail: '',
+      vsd_applicantsprimaryaddressline1: '',
+      vsd_applicantsprimaryaddressline2: '',
+      vsd_applicantsprimaryaddressline3: application.RestitutionInformation.contactInformation.attentionTo,
+      vsd_applicantsprimarycity: '',
+      vsd_applicantsprimaryprovince: '',
+      vsd_applicantsprimarypostalcode: '',
+      vsd_applicantsprimarycountry: '',
+      vsd_voicemailoption: null,
+      vsd_applicantssignature: application.RestitutionInformation.signature,
+      vsd_offendercustodylocation: '',
+
+    }
+  }
+  
+  
 
     if (application.ApplicationType.val !== ResitutionForm.VictimEntity.val) {
     let hasDesignate = (application.RestitutionInformation.authorizeDesignate && application.RestitutionInformation.designate.length > 0);
