@@ -47,7 +47,7 @@ function getCRMApplication(application: iRestitutionApplication) {
       vsd_applicanttype: application.ApplicationType.val == ResitutionForm.VictimEntity.val ? ResitutionForm.Victim.val : application.ApplicationType.val, //annoying handling for "victim entity"
       vsd_applicantsfirstname: primaryContact != undefined ? primaryContact.firstName : application.RestitutionInformation.firstName,
       vsd_applicantsmiddlename: application.RestitutionInformation.middleName,
-      vsd_applicantslastname: primaryContact != undefined ? primaryContact.firstName : application.RestitutionInformation.lastName,
+      vsd_applicantslastname: primaryContact != undefined ? primaryContact.lastName : application.RestitutionInformation.lastName,
       vsd_otherfirstname: application.RestitutionInformation.otherFirstName,
       vsd_otherlastname: application.RestitutionInformation.otherLastName,
       vsd_applicantsgendercode: application.RestitutionInformation.gender,
