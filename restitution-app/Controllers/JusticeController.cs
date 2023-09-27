@@ -39,8 +39,6 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
                 JsonSerializerSettings settings = new JsonSerializerSettings();
                 settings.NullValueHandling = NullValueHandling.Ignore;
                 var modelString = JsonConvert.SerializeObject(model, settings);
-                _logger.Information("JSON Sent to vsd_CreateRestitutionCase: ");
-                _logger.Information(modelString);
                 DynamicsResult result = await _dynamicsResultService.Post(endpointAction, modelString);
                 return StatusCode((int)result.statusCode, result.result.ToString());
             }
