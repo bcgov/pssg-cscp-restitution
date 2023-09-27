@@ -46,29 +46,30 @@ function getCRMApplication(application: iRestitutionApplication) {
   if (application.ApplicationType.val == ResitutionForm.VictimEntity.val) {
     crm_application = {
       vsd_applicanttype: application.ApplicationType.val == ResitutionForm.VictimEntity.val ? ResitutionForm.Victim.val : application.ApplicationType.val, //annoying handling for "victim entity"
-      vsd_applicantsfirstname: primaryContact != undefined ? primaryContact.firstName : application.RestitutionInformation.firstName,
+      vsd_applicantsfirstname: application.RestitutionInformation.firstName,
       vsd_applicantsmiddlename: application.RestitutionInformation.middleName,
-      vsd_applicantslastname: primaryContact != undefined ? primaryContact.lastName : application.RestitutionInformation.lastName,
+      vsd_applicantslastname: application.RestitutionInformation.lastName,
       vsd_otherfirstname: application.RestitutionInformation.otherFirstName,
       vsd_otherlastname: application.RestitutionInformation.otherLastName,
       vsd_applicantsgendercode: application.RestitutionInformation.gender,
       vsd_applicantsbirthdate: application.RestitutionInformation.birthDate,
       vsd_indigenous: application.RestitutionInformation.indigenousStatus,
-      vsd_applicantsprimarycity: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.city : '',
-      vsd_applicantsprimaryprovince: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.province : '',
-      vsd_applicantsprimarypostalcode: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.postalCode : '',
-      vsd_applicantsprimarycountry: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.country : '',
       vsd_applicantssignature: application.RestitutionInformation.signature,
-      vsd_smspreferred: primaryContact.smsPreferred,
+      vsd_smspreferred: 100000000,
       vsd_applicantspreferredmethodofcontact: primaryContact.preferredMethodOfContact,
       vsd_applicantsprimaryphonenumber: primaryContact.phoneNumber,
       vsd_applicantsalternatephonenumber: primaryContact.alternatePhoneNumber,
       vsd_applicantsemail: primaryContact.email,
-      vsd_applicantsprimaryaddressline1: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.line1 : '',
-      vsd_applicantsprimaryaddressline2: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.mailingAddress.line2 : '',
-      vsd_applicantsprimaryaddressline3: primaryContact != undefined && primaryContact.mailingAddress != undefined ? primaryContact.attentionTo : '',
+      //TODO Address
+      vsd_applicantsprimaryaddressline1: application.RestitutionInformation.contactInformation.mailingAddress.line1,
+      vsd_applicantsprimaryaddressline2: application.RestitutionInformation.contactInformation.mailingAddress.line2,
+      vsd_applicantsprimaryaddressline3: '',
+      vsd_applicantsprimarycity: application.RestitutionInformation.contactInformation.mailingAddress.city,
+      vsd_applicantsprimaryprovince: application.RestitutionInformation.contactInformation.mailingAddress.province,
+      vsd_applicantsprimarypostalcode: application.RestitutionInformation.contactInformation.mailingAddress.postalCode,
+      vsd_applicantsprimarycountry: application.RestitutionInformation.contactInformation.mailingAddress.country,
       vsd_voicemailoption: null,
-      vsd_contacttitle: primaryContact != undefined ? primaryContact.contactTitle : '',
+      vsd_contacttitle: '',
       //NOTE: VS-6380 This field was remapped from contact entity as per business ask.   
       vsd_offendercustodylocation: application.RestitutionInformation.probationOfficerCustodyLocation,
     }
@@ -222,7 +223,7 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
             vsd_email: contact.email,
             vsd_voicemailoptions: contact.leaveVoicemail,
             vsd_preferredmethodofcontact: convertToParticipantMethodOfContact(contact.preferredMethodOfContact),
-            vsd_isprimaryentitycontact: primaryContact != undefined ? primaryContact.isPrimaryContact : CRMBoolean.False,
+            vsd_isprimaryentitycontact: contact.isPrimaryContact,
             vsd_title: contact.contactTitle,
 
 
