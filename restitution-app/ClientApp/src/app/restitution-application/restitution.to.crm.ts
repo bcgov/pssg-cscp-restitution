@@ -302,7 +302,8 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
                   vsd_voicemailoptions: c.leaveVoicemail,
                   vsd_email: c.email,
                   vsd_isprimaryentitycontact: c.isPrimaryContact,
-                  vsd_title: c.contactTitle,
+                  vsd_contacttitle: c.contactTitle,
+                  vsd_smspreferred: c.smsPreferred
                 });
             }
         })
