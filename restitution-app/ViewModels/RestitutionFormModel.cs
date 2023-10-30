@@ -81,6 +81,8 @@ namespace Gov.Cscp.VictimServices.Public.ViewModels
         public string vsd_relationship2 { get; set; }
         public string vsd_relationship2other { get; set; }
         public string vsd_title { get; set; }
+        public string vsd_contacttitle { get; set; }
+        public int? vsd_smspreferred { get; set; }
         public int? vsd_isprimaryentitycontact { get; set; }
     }
 

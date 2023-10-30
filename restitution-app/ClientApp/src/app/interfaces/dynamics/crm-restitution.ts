@@ -74,6 +74,8 @@ export interface iCRMParticipant {
     vsd_relationship2other?: string;
     vsd_title?: string;
     vsd_isprimaryentitycontact?: number;
+    vsd_contacttitle?: string;
+    vsd_smspreferred?: number;
 }
 export interface iCRMDocument {
     filename: string;

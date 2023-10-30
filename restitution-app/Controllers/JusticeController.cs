@@ -39,7 +39,6 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
                 JsonSerializerSettings settings = new JsonSerializerSettings();
                 settings.NullValueHandling = NullValueHandling.Ignore;
                 var modelString = JsonConvert.SerializeObject(model, settings);
-
                 DynamicsResult result = await _dynamicsResultService.Post(endpointAction, modelString);
                 return StatusCode((int)result.statusCode, result.result.ToString());
             }
