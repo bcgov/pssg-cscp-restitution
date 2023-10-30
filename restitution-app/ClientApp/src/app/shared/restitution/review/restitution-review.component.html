@@ -60,7 +60,7 @@
         </table>
 
         <ng-container *ngIf="formType.val === ResitutionForm.Victim.val">
-            <ng-container *ngIf="form.get('restitutionInformation.authorizeDesignate').value === CRMBoolean.True">
+            <ng-container *ngIf="form.get('restitutionInformation.authorizeDesignate').value === CRMMultiBoolean.True">
                 <div *ngFor="let item of form.get('restitutionInformation.designate')['controls']; let i = index">
                     <h3>Authorized Victim Designate</h3>
                     <table class="table table-striped review-table">
@@ -116,8 +116,8 @@
             <tr>
               <th>Is Primary Entity Contact</th>
 
-              <td *ngIf="valueOrEmpty(item.get('isPrimaryContact')) == 100000001"> Yes </td>
-              <td *ngIf="valueOrEmpty(item.get('isPrimaryContact')) == 100000000"> No </td>
+              <td *ngIf="valueOrEmpty(item.get('isPrimaryContact')) == 100000000"> Yes </td>
+              <td *ngIf="valueOrEmpty(item.get('isPrimaryContact')) == 100000001"> No </td>
 
             </tr>
             <tr>
@@ -128,8 +128,8 @@
             </tr>
             <tr>
               <th>SMS Preferred</th>
-              <td *ngIf="valueOrEmpty(item.get('smsPreferred')) == 100000001"> Yes </td>
-              <td *ngIf="valueOrEmpty(item.get('smsPreferred')) == 100000000"> No </td>
+              <td *ngIf="valueOrEmpty(item.get('smsPreferred')) == 100000000"> Yes </td>
+              <td *ngIf="valueOrEmpty(item.get('smsPreferred')) == 100000001"> No </td>
 
             </tr>
             <tr>

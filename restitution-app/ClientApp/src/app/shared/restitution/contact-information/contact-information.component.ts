@@ -3,7 +3,7 @@ import { OnInit, Component, Input } from "@angular/core";
 import { DateAdapter, MAT_DATE_LOCALE, MAT_DATE_FORMATS } from "@angular/material";
 import { FormGroup, ControlContainer, Validators, FormArray, FormBuilder, FormControl } from "@angular/forms";
 import { MomentDateAdapter } from "@angular/material-moment-adapter";
-import { MY_FORMATS, IOptionSetVal, ResitutionForm, CRMBoolean } from "../../enums-list";
+import { MY_FORMATS, IOptionSetVal, ResitutionForm, CRMMultiBoolean } from "../../enums-list";
 import { iLookupData } from "../../../interfaces/lookup-data.interface";
 import { RestitutionInfoHelper } from "../restitution-information/restitution-information.helper";
 
@@ -22,7 +22,7 @@ export class RestitutionContactInformationComponent extends FormBase implements 
     @Input() isDisabled: boolean;
     public form: FormGroup;
     ResitutionForm = ResitutionForm;
-    CRMBoolean = CRMBoolean;
+    CRMMultiBoolean = CRMMultiBoolean;
 
     restitutionInfoHelper = new RestitutionInfoHelper();
 
@@ -41,10 +41,10 @@ export class RestitutionContactInformationComponent extends FormBase implements 
     }
   primaryContactChange( index ) {
     let entityContacts = this.form.get('entityContacts') as FormArray;
-    //entityContacts.at(index).get("isPrimaryContact").setValue(CRMBoolean.True);
+    //entityContacts.at(index).get("isPrimaryContact").setValue(CRMMultiBoolean.True);
     for (var i = 0; i < entityContacts.controls.length; i++) {
       if (i != index) {
-        entityContacts.at(i).get("isPrimaryContact").setValue(CRMBoolean.False);
+        entityContacts.at(i).get("isPrimaryContact").setValue(CRMMultiBoolean.False);
       }
     }
     //this.form.get('entityContacts').setValue(entityContacts);
@@ -72,7 +72,7 @@ export class RestitutionContactInformationComponent extends FormBase implements 
         }
 
         let smsPreferred = this.form.get("smsPreferred").value;
-        if (smsPreferred == CRMBoolean.True) {
+      if (smsPreferred == CRMMultiBoolean.True) {
             this.setControlValidators(phoneControl, [Validators.required, Validators.minLength(10), Validators.maxLength(15)]);
         }
     }
@@ -101,7 +101,7 @@ export class RestitutionContactInformationComponent extends FormBase implements 
     }
 
     let smsPreferred = selectedContact.get("smsPreferred").value;
-    if (smsPreferred == CRMBoolean.True) {
+    if (smsPreferred == CRMMultiBoolean.True) {
       this.setControlValidators(phoneControl, [Validators.required, Validators.minLength(10), Validators.maxLength(15)]);
     }
   }
@@ -109,7 +109,7 @@ export class RestitutionContactInformationComponent extends FormBase implements 
     addContact() {
       let entityContacts = this.form.get('entityContacts') as FormArray;
       var contact = this.restitutionInfoHelper.createEntityContact(this.fb, this.formType);
-      contact.get("isPrimaryContact").setValue(CRMBoolean.False);
+      contact.get("isPrimaryContact").setValue(CRMMultiBoolean.False);
       entityContacts.push(contact);
     }
 
@@ -117,7 +117,7 @@ export class RestitutionContactInformationComponent extends FormBase implements 
         let entityContacts = this.form.get('entityContacts') as FormArray;
       entityContacts.removeAt(index);
       if (entityContacts.length == 1) {
-        entityContacts.at(0).get("isPrimaryContact").setValue(CRMBoolean.True);
+        entityContacts.at(0).get("isPrimaryContact").setValue(CRMMultiBoolean.True);
       }
     }
 }

@@ -1,5 +1,5 @@
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { CRMBoolean, IOptionSetVal, ResitutionForm } from "../../enums-list";
+import {  CRMMultiBoolean, IOptionSetVal, ResitutionForm } from "../../enums-list";
 import { POSTAL_CODE } from "../../regex.constants";
 import { EmailValidator } from "../../validators/email.validator";
 
@@ -136,7 +136,7 @@ export class RestitutionInfoHelper {
       if (form_type.val === ResitutionForm.VictimEntity.val) {
         group["relationship"] = [''];
         group["contactTitle"] = ['', [Validators.minLength(1), Validators.maxLength(50)]];
-        group["isPrimaryContact"] = [CRMBoolean.False];
+        group["isPrimaryContact"] = [CRMMultiBoolean.False];
         group["preferredMethodOfContact"] = [null, [Validators.min(1), Validators.max(100000002)]]; // Phone = 2, Email = 1, Mail = 4, Alternate Mail = 100000002
         group["smsPreferred"] = [null];
         group["phoneNumber"] = ['', [Validators.minLength(10), Validators.maxLength(15)]];

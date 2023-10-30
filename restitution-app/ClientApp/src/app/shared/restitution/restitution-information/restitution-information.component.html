@@ -128,11 +128,11 @@
                 <div class="col-12">
                     <app-field [label]="'Do you want to authorize someone to be ' + (formType.val === ResitutionForm.Victim.val ? 'a Victim' : 'an Applicant') + ' Designate?'" [required]="true" [valid]="isMyControlValid(form.get('authorizeDesignate'))" errorMessage="Please make a selection" [disabled]="isDisabled">
                         <label class="inline-label">
-                            <input type="radio" [value]="CRMBoolean.True" name="authorizeDesignate" formControlName="authorizeDesignate" (change)="authorizeDesignateChange()">
+                            <input type="radio" [value]="CRMMultiBoolean.True" name="authorizeDesignate" formControlName="authorizeDesignate" (change)="authorizeDesignateChange()">
                             <span>Yes</span>
                         </label>
                         <label class="inline-label">
-                            <input type="radio" [value]="CRMBoolean.False" name="authorizeDesignate" formControlName="authorizeDesignate" (change)="authorizeDesignateChange()">
+                            <input type="radio" [value]="CRMMultiBoolean.False" name="authorizeDesignate" formControlName="authorizeDesignate" (change)="authorizeDesignateChange()">
                             <span>No</span>
                         </label>
                     </app-field>

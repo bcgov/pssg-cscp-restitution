@@ -1,6 +1,6 @@
 import { iCRMApplication, iCRMContactInfo, iCRMCourtInfo, iCRMParticipant, iRestitutionCRM } from "../interfaces/dynamics/crm-restitution";
 import { iRestitutionApplication, iCourtFile, iDocument, iEntityContact } from "../interfaces/restitution.interface";
-import { CRMBoolean, EnumHelper, ResitutionForm } from "../shared/enums-list";
+import {  CRMMultiBoolean, EnumHelper, ResitutionForm } from "../shared/enums-list";
 
 
 export function convertRestitutionToCRM(application: iRestitutionApplication) {
@@ -197,7 +197,7 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
         //add designate...
 
       var primaryContact = application.RestitutionInformation.contactInformation.entityContacts
-        .filter(k => k.isPrimaryContact == CRMBoolean.True)[0];
+        .filter(k => k.isPrimaryContact == CRMMultiBoolean.True)[0];
       if (primaryContact == null || primaryContact == undefined) {
         primaryContact == application.RestitutionInformation.contactInformation.entityContacts[0];
       }
@@ -245,7 +245,7 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
                 break;
         }
 
-        if (primaryContact.smsPreferred == CRMBoolean.True) {
+        if (primaryContact.smsPreferred == CRMMultiBoolean.True) {
             toAdd.vsd_restcontactpreferenceforupdates = enumHelper.ParticipantRestitutionContactMethods.SMS.val;
         }
 

@@ -1,4 +1,3 @@
-import { CRMBoolean } from "../../shared/enums-list";
 
 export interface iRestitutionCRM {
     Application: iCRMApplication;

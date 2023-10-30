@@ -3,7 +3,7 @@ import { OnInit, Component, Input } from "@angular/core";
 import { DateAdapter, MAT_DATE_LOCALE, MAT_DATE_FORMATS, MatDialog, MatDialogConfig } from "@angular/material";
 import { FormGroup, ControlContainer, FormArray, FormBuilder } from "@angular/forms";
 import { MomentDateAdapter } from "@angular/material-moment-adapter";
-import { MY_FORMATS, IOptionSetVal, ResitutionForm, CRMBoolean } from "../../enums-list";
+import { MY_FORMATS, IOptionSetVal, ResitutionForm, CRMMultiBoolean } from "../../enums-list";
 import { iLookupData } from "../../../interfaces/lookup-data.interface";
 import { POSTAL_CODE } from "../../regex.constants";
 import { AddressHelper } from "../../address/address.helper";
@@ -27,7 +27,7 @@ export class RestitutionInformationComponent extends FormBase implements OnInit 
     public form: FormGroup;
     ResitutionForm = ResitutionForm;
     postalRegex = POSTAL_CODE;
-    CRMBoolean = CRMBoolean;
+    CRMMultiBoolean = CRMMultiBoolean;
 
     page_header: string = "";
     applicant_type: string = "";
@@ -115,7 +115,7 @@ export class RestitutionInformationComponent extends FormBase implements OnInit 
     }
 
     authorizeDesignateChange() {
-        if (this.form.get("authorizeDesignate").value === CRMBoolean.True) {
+      if (this.form.get("authorizeDesignate").value === CRMMultiBoolean.True) {
             this.addDesignate();
         }
         else {
