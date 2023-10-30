@@ -3,7 +3,7 @@ import { OnInit, Component, Input } from "@angular/core";
 import { DateAdapter, MAT_DATE_LOCALE, MAT_DATE_FORMATS, MatStepper } from "@angular/material";
 import { FormGroup, ControlContainer, FormArray, FormBuilder } from "@angular/forms";
 import { MomentDateAdapter } from "@angular/material-moment-adapter";
-import { MY_FORMATS, IOptionSetVal, ResitutionForm, EnumHelper, CRMBoolean, CRMMultiBoolean } from "../../enums-list";
+import { MY_FORMATS, IOptionSetVal, ResitutionForm, EnumHelper, CRMMultiBoolean } from "../../enums-list";
 import { AddressHelper } from "../../address/address.helper";
 import { RESTITUTION_PAGES } from "../../../restitution-application/restitution-application.component";
 
@@ -23,7 +23,6 @@ export class RestitutionReviewComponent extends FormBase implements OnInit {
     ResitutionForm = ResitutionForm;
     enumHelper = new EnumHelper();
     addressHelper = new AddressHelper();
-    CRMBoolean = CRMBoolean;
     CRMMultiBoolean = CRMMultiBoolean;
 
     contactsToDisplay: any;
