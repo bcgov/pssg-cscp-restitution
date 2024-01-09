@@ -207,6 +207,11 @@ export const ResitutionForm = {
   VictimEntity:   <IOptionSetVal> { val: 100000004, name: "Entity Victim" },
 };
 
+export enum CRMBoolean {
+  True = 100000001,
+  False = 100000000
+}
+
 export enum CRMMultiBoolean {
   True = 100000000,
   False = 100000001,

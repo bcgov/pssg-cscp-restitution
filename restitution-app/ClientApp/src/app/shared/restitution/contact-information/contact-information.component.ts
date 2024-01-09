@@ -3,7 +3,7 @@ import { OnInit, Component, Input } from "@angular/core";
 import { DateAdapter, MAT_DATE_LOCALE, MAT_DATE_FORMATS } from "@angular/material";
 import { FormGroup, ControlContainer, Validators, FormArray, FormBuilder, FormControl } from "@angular/forms";
 import { MomentDateAdapter } from "@angular/material-moment-adapter";
-import { MY_FORMATS, IOptionSetVal, ResitutionForm, CRMMultiBoolean } from "../../enums-list";
+import { MY_FORMATS, IOptionSetVal, ResitutionForm, CRMBoolean, CRMMultiBoolean } from "../../enums-list";
 import { iLookupData } from "../../../interfaces/lookup-data.interface";
 import { RestitutionInfoHelper } from "../restitution-information/restitution-information.helper";
 
@@ -72,7 +72,7 @@ export class RestitutionContactInformationComponent extends FormBase implements 
         }
 
         let smsPreferred = this.form.get("smsPreferred").value;
-      if (smsPreferred == CRMMultiBoolean.True) {
+      if (smsPreferred == CRMBoolean.True) {
             this.setControlValidators(phoneControl, [Validators.required, Validators.minLength(10), Validators.maxLength(15)]);
         }
     }
@@ -101,7 +101,7 @@ export class RestitutionContactInformationComponent extends FormBase implements 
     }
 
     let smsPreferred = selectedContact.get("smsPreferred").value;
-    if (smsPreferred == CRMMultiBoolean.True) {
+    if (smsPreferred == CRMBoolean.True) {
       this.setControlValidators(phoneControl, [Validators.required, Validators.minLength(10), Validators.maxLength(15)]);
     }
   }
