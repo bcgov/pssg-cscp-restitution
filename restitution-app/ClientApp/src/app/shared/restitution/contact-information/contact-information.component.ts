@@ -23,6 +23,7 @@ export class RestitutionContactInformationComponent extends FormBase implements 
     public form: FormGroup;
     ResitutionForm = ResitutionForm;
     CRMMultiBoolean = CRMMultiBoolean;
+    CRMBoolean = CRMBoolean;
 
     restitutionInfoHelper = new RestitutionInfoHelper();
 
