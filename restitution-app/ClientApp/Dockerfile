@@ -6,7 +6,7 @@ COPY ./restitution-app/ClientApp ./restitution-app/ClientApp
 WORKDIR /restitution-app/ClientApp
 
 RUN npm install
-RUN npm run build -- --base-href /cvapwebform --prod
+RUN npm run build -- --base-href /restwebforms --prod
 
 # Create runtime image layer, copy build image contents into this image
 FROM caddy:latest AS final
