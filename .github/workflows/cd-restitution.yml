@@ -18,7 +18,7 @@ jobs:
     if: github.repository_owner == 'bcgov'
     env:
       IMAGE_NAME: api
-      restitution_API_DOCKERFILE_PATH: ./restitution-app/Dockerfile
+      RESTITUTION_API_DOCKERFILE_PATH: ./restitution-app/Dockerfile
 
     steps:
       - uses: actions/checkout@v4
@@ -43,7 +43,7 @@ jobs:
             BUILD_ID="${{ env.BUILD_ID }}"
           cache-from: |
             ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}-${{ env.IMAGE_NAME }}
-          file: ${{ env.restitution_API_DOCKERFILE_PATH }}
+          file: ${{ env.RESTITUTION_API_DOCKERFILE_PATH }}
           push: true
           tags: |
             ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}-${{ env.IMAGE_NAME }}:dev
