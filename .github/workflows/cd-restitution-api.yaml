@@ -3,12 +3,13 @@ name: cd-restitution-api
 on:
   workflow_dispatch:
   push:
-    paths:
-      - 'restitution-app/**'
-      - '.github/workflows/cd-restitution-api.yml'
     paths-ignore:
-      # Ignore ClientApp, cd-restitution-ui handles that image build pipeline.
+      - '.github/workflows/cd-restitution-ui.yml'
       - 'restitution-app/ClientApp/**'
+      - 'COMPLIANCE.yaml'
+      - 'LICENSE'
+      - 'README.md'
+
 env:
   APP_NAME: restitution
   BUILD_ID: ${{ github.server_url }}!${{ github.repository }}!${{ github.ref_name }}!${{ github.sha }}!${{ github.run_number }}
