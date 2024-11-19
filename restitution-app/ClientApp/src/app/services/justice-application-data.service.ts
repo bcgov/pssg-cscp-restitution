@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class JusticeApplicationDataService {
-  apiPath = 'api/justice/';
+  baseUrl = environment.apiRootUrl;
+  apiPath = this.baseUrl.concat('api/justice/');
+
   pdfHeaders: HttpHeaders = new HttpHeaders({
     'Content-Type': 'application/json;charset=UTF-8',
   });
+  
   headers: HttpHeaders = new HttpHeaders({
     'Content-Type': 'application/json'
   });
