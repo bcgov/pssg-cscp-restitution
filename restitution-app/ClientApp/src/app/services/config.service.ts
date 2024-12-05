@@ -3,15 +3,19 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Configuration } from '../interfaces/configuration.interface';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConfigService{
+  baseUrl = environment.apiRootUrl;
+
   headers: HttpHeaders = new HttpHeaders({
     'Content-Type': 'application/json'
   });
-  apiUrl = 'api/Configuration';
+  
+  apiPath = this.baseUrl.concat('api/Configuration');
 
   constructor(
     private http: HttpClient,
@@ -20,7 +24,7 @@ export class ConfigService{
   public async load(): Promise<Configuration> {
     try {
       return await
-        this.http.get<Configuration>(this.apiUrl, { headers: this.headers })
+        this.http.get<Configuration>(this.apiPath, { headers: this.headers })
           .pipe(catchError(this.handleError)).toPromise();
     } catch (error) {
       this.handleError(error);
