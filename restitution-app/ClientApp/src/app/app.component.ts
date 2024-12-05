@@ -5,6 +5,7 @@ import {ConfigService} from "./services/config.service";
 import {Configuration} from "./interfaces/configuration.interface";
 import 'rxjs/add/operator/filter';
 import * as moment from 'moment-timezone';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +17,7 @@ export class AppComponent implements OnInit {
   previousUrl: string;
   configuration: Configuration;
   error = false;
+  apiPath = environment.apiRootUrl;
   public isNewUser: boolean;
   public isDevMode: boolean;
 
