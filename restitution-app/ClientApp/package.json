@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --source-map --host 0.0.0.0 --public-host=localhost:5001",
+    "start": "ng serve --host 0.0.0.0 --proxy-config proxy.config.json",
     "build": "ng build --extract-css --base-href /restwebforms/ --deploy-url /restwebforms/",
     "builduat": "ng build --extract-css --base-href /uat/restwebforms/ --deploy-url /uat/restwebforms/",
     "buildprod": "ng build --extract-css --base-href /restwebforms/ --deploy-url /restwebforms/",
