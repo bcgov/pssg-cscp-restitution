@@ -8,9 +8,8 @@ describe('RestitutionAddressComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ RestitutionAddressComponent ]
-    })
-    .compileComponents();
+      declarations: [RestitutionAddressComponent]
+    }).compileComponents();
   }));
 
   beforeEach(() => {

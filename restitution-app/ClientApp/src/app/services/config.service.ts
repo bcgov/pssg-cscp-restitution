@@ -8,24 +8,23 @@ import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
-export class ConfigService{
+export class ConfigService {
   baseUrl = environment.apiRootUrl;
 
   headers: HttpHeaders = new HttpHeaders({
     'Content-Type': 'application/json'
   });
-  
+
   apiPath = this.baseUrl.concat('api/Configuration');
 
-  constructor(
-    private http: HttpClient,
-  ) { }
+  constructor(private http: HttpClient) {}
 
   public async load(): Promise<Configuration> {
     try {
-      return await
-        this.http.get<Configuration>(this.apiPath, { headers: this.headers })
-          .pipe(catchError(this.handleError)).toPromise();
+      return await this.http
+        .get<Configuration>(this.apiPath, { headers: this.headers })
+        .pipe(catchError(this.handleError))
+        .toPromise();
     } catch (error) {
       this.handleError(error);
       throw error;

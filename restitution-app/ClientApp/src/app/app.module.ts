@@ -52,7 +52,7 @@ import { FileUploaderComponent } from './shared/file-uploader/file-uploader.comp
 import { JusticeApplicationDataService } from './services/justice-application-data.service';
 import { LookupService } from './services/lookup.service';
 import { NgBusyModule } from 'ng-busy';
-import { NgxMaskModule } from 'ngx-mask'
+import { NgxMaskModule } from 'ngx-mask';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { PhonePipe } from './pipes/phone.pipe';
 import { QuickExitComponent } from './quick-exit/quick-exit.component';
@@ -92,7 +92,7 @@ import { RestitutionAddressComponent } from './shared/restitution-address/addres
     RestitutionReviewComponent,
     RestitutionSuccessComponent,
     SignPadDialog,
-    ToolTipTriggerComponent,
+    ToolTipTriggerComponent
   ],
   imports: [
     AppRoutingModule,
@@ -141,7 +141,7 @@ import { RestitutionAddressComponent } from './shared/restitution-address/addres
     BsDatepickerModule.forRoot(),
     NgxMaskModule.forRoot(),
     TooltipModule.forRoot(),
-    TypeaheadModule.forRoot(),
+    TypeaheadModule.forRoot()
   ],
   exports: [
     AppRoutingModule,
@@ -185,21 +185,10 @@ import { RestitutionAddressComponent } from './shared/restitution-address/addres
     MatToolbarModule,
     MatTooltipModule,
     ReactiveFormsModule,
-    TooltipModule,
+    TooltipModule
   ],
-  providers: [
-    CookieService,
-    JusticeApplicationDataService,
-    LookupService,
-    StateService,
-    Title,
-  ],
-  entryComponents: [
-    CancelApplicationDialog,
-    CancelDialog,
-    MessageDialog,
-    SignPadDialog,
-  ],
+  providers: [CookieService, JusticeApplicationDataService, LookupService, StateService, Title],
+  entryComponents: [CancelApplicationDialog, CancelDialog, MessageDialog, SignPadDialog],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

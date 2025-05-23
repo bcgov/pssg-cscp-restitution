@@ -38,7 +38,7 @@ const routes: Routes = [
   // },
   {
     path: 'restitution-success',
-    component: RestitutionSuccessComponent,
+    component: RestitutionSuccessComponent
   },
   { path: '**', component: NotFoundComponent }
 ];
@@ -48,4 +48,4 @@ const routes: Routes = [
   exports: [RouterModule],
   providers: []
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

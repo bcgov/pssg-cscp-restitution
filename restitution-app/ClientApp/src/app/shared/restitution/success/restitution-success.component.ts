@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router } from "@angular/router";
+import { Router } from '@angular/router';
 import { StateService } from '../../../services/state.service';
 import { ResitutionForm } from '../../enums-list';
 
@@ -10,7 +10,7 @@ import { ResitutionForm } from '../../enums-list';
 })
 export class RestitutionSuccessComponent {
   constructor(private router: Router, private state: StateService) {
-    this.router.navigateByUrl("/restitution-success");
+    this.router.navigateByUrl('/restitution-success');
   }
 
   submitAnotherApplication() {
@@ -18,14 +18,11 @@ export class RestitutionSuccessComponent {
     let type = this.state.data.type;
     if (type.val === ResitutionForm.Victim.val) {
       this.router.navigate(['/victim']);
-    }
-    else if (type.val === ResitutionForm.Offender.val) {
+    } else if (type.val === ResitutionForm.Offender.val) {
       this.router.navigate(['/offender']);
-    }
-    else if (type.val === ResitutionForm.VictimEntity.val) {
+    } else if (type.val === ResitutionForm.VictimEntity.val) {
       this.router.navigate(['/victim-entity']);
-    }
-    else {
+    } else {
       //not implemented...
     }
   }

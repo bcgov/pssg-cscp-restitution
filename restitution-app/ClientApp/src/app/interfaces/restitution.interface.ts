@@ -1,5 +1,5 @@
-import {  CRMMultiBoolean, IOptionSetVal } from "../shared/enums-list";
-import { Address } from "./address.interface";
+import { CRMMultiBoolean, IOptionSetVal } from '../shared/enums-list';
+import { Address } from './address.interface';
 
 export interface iRestitutionApplication {
   ApplicationType: IOptionSetVal;
@@ -42,7 +42,7 @@ export interface iDesignate {
 }
 
 export interface iContactInformation {
-  entityContacts: iEntityContact[],
+  entityContacts: iEntityContact[];
   preferredMethodOfContact: number;
   smsPreferred?: number;
   mailingAddress: Address;
@@ -90,4 +90,3 @@ export interface iDocument {
   body: string;
   subject?: string;
 }
-
