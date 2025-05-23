@@ -1,10 +1,11 @@
-﻿using Gov.Cscp.VictimServices.Public.Models;
+﻿using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using Gov.Cscp.VictimServices.Public.Models;
 using Gov.Cscp.VictimServices.Public.Services;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
-using System.Threading.Tasks;
-using System;
-using System.Text.Json;
 
 namespace Gov.Cscp.VictimServices.Public.Controllers
 {
@@ -35,7 +36,10 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             }
             catch (Exception e)
             {
-                _logger.Error(e, "Unexpected error while looking up countries in COAST. Source = Restitution");
+                _logger.Error(
+                    e,
+                    "Unexpected error while looking up countries in COAST. Source = Restitution"
+                );
                 return BadRequest();
             }
             finally { }
@@ -47,7 +51,8 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             try
             {
                 // set the endpoint action
-                string endpointUrl = "vsd_provinces?$select=vsd_code,_vsd_countryid_value,vsd_name&$filter=statecode eq 0";
+                string endpointUrl =
+                    "vsd_provinces?$select=vsd_code,_vsd_countryid_value,vsd_name&$filter=statecode eq 0";
 
                 // get the response
                 DynamicsResult result = await _dynamicsResultService.Get(endpointUrl);
@@ -56,7 +61,10 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             }
             catch (Exception e)
             {
-                _logger.Error(e, "Unexpected error while looking up provinces in COAST. Source = Restitution");
+                _logger.Error(
+                    e,
+                    "Unexpected error while looking up provinces in COAST. Source = Restitution"
+                );
                 return BadRequest();
             }
             finally { }
@@ -68,7 +76,8 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             try
             {
                 // set the endpoint action
-                string endpointUrl = "vsd_cities?$select=_vsd_countryid_value,vsd_name,_vsd_stateid_value&$filter=statecode eq 0";
+                string endpointUrl =
+                    "vsd_cities?$select=_vsd_countryid_value,vsd_name,_vsd_stateid_value&$filter=statecode eq 0";
 
                 // get the response
                 DynamicsResult result = await _dynamicsResultService.Get(endpointUrl);
@@ -76,14 +85,22 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             }
             catch (Exception e)
             {
-                _logger.Error(e, "Unexpected error while looking up cities in COAST. Source = Restitution");
+                _logger.Error(
+                    e,
+                    "Unexpected error while looking up cities in COAST. Source = Restitution"
+                );
                 return BadRequest();
             }
             finally { }
         }
 
         [HttpGet("cities/search")]
-        public async Task<IActionResult> SearchCities(string country, string province, string searchVal, int limit)
+        public async Task<IActionResult> SearchCities(
+            string country,
+            string province,
+            string searchVal,
+            int limit
+        )
         {
             try
             {
@@ -92,21 +109,26 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
                     Country = country,
                     Province = province,
                     City = searchVal,
-                    TopCount = limit
+                    TopCount = limit,
                 };
-                
+
                 string endpointUrl = "vsd_GetCities";
 
-                JsonSerializerOptions options = new JsonSerializerOptions();
-                options.IgnoreNullValues = true;
-                string requestJson = System.Text.Json.JsonSerializer.Serialize(searchParameters, options);
+                JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                };
+                string requestJson = JsonSerializer.Serialize(searchParameters, options);
 
                 DynamicsResult result = await _dynamicsResultService.Post(endpointUrl, requestJson);
                 return StatusCode((int)result.statusCode, result.result.ToString());
             }
             catch (Exception e)
             {
-                _logger.Error(e, "Unexpected error while searching cities in COAST. Source = Restitution");
+                _logger.Error(
+                    e,
+                    "Unexpected error while searching cities in COAST. Source = Restitution"
+                );
                 return BadRequest();
             }
             finally { }
@@ -119,7 +141,8 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             {
                 string requestJson = "{\"Country\":\"" + country + "\"}";
                 // set the endpoint action
-                string endpointUrl = $"vsd_cities?$select=_vsd_countryid_value,vsd_name,_vsd_stateid_value&$filter=statecode eq 0 and _vsd_countryid_value eq {country}";
+                string endpointUrl =
+                    $"vsd_cities?$select=_vsd_countryid_value,vsd_name,_vsd_stateid_value&$filter=statecode eq 0 and _vsd_countryid_value eq {country}";
 
                 // get the response
                 DynamicsResult result = await _dynamicsResultService.Get(endpointUrl);
@@ -127,7 +150,10 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             }
             catch (Exception e)
             {
-                _logger.Error(e, "Unexpected error while looking up citites by country in COAST. Source = Restitution");
+                _logger.Error(
+                    e,
+                    "Unexpected error while looking up citites by country in COAST. Source = Restitution"
+                );
                 return BadRequest();
             }
             finally { }
@@ -139,7 +165,8 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             try
             {
                 // set the endpoint action
-                string endpointUrl = $"vsd_cities?$select=_vsd_countryid_value,vsd_name,_vsd_stateid_value&$filter=statecode eq 0 and _vsd_countryid_value eq {countryId} and _vsd_stateid_value eq {provinceId}";
+                string endpointUrl =
+                    $"vsd_cities?$select=_vsd_countryid_value,vsd_name,_vsd_stateid_value&$filter=statecode eq 0 and _vsd_countryid_value eq {countryId} and _vsd_stateid_value eq {provinceId}";
 
                 // get the response
                 DynamicsResult result = await _dynamicsResultService.Get(endpointUrl);
@@ -147,7 +174,10 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             }
             catch (Exception e)
             {
-                _logger.Error(e, "Unexpected error while looking up cities by province in COAST. Source = Restitution");
+                _logger.Error(
+                    e,
+                    "Unexpected error while looking up cities by province in COAST. Source = Restitution"
+                );
                 return BadRequest();
             }
             finally { }
@@ -167,7 +197,10 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             }
             catch (Exception e)
             {
-                _logger.Error(e, "Unexpected error while looking up relationships in COAST. Source = Restitution");
+                _logger.Error(
+                    e,
+                    "Unexpected error while looking up relationships in COAST. Source = Restitution"
+                );
                 return BadRequest();
             }
             finally { }
@@ -179,7 +212,8 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             try
             {
                 // set the endpoint action
-                string endpointUrl = "vsd_relationships?$select=vsd_name&$filter=statecode eq 0 and vsd_optionalauthorizedrelationship eq true";
+                string endpointUrl =
+                    "vsd_relationships?$select=vsd_name&$filter=statecode eq 0 and vsd_optionalauthorizedrelationship eq true";
 
                 // get the response
                 DynamicsResult result = await _dynamicsResultService.Get(endpointUrl);
@@ -187,7 +221,10 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             }
             catch (Exception e)
             {
-                _logger.Error(e, "Unexpected error while looking up optional auth relationships in COAST. Source = Restitution");
+                _logger.Error(
+                    e,
+                    "Unexpected error while looking up optional auth relationships in COAST. Source = Restitution"
+                );
                 return BadRequest();
             }
             finally { }
@@ -199,7 +236,8 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             try
             {
                 // set the endpoint action
-                string endpointUrl = "vsd_relationships?$select=vsd_name&$filter=statecode eq 0 and vsd_cvap_representativerelationship eq true";
+                string endpointUrl =
+                    "vsd_relationships?$select=vsd_name&$filter=statecode eq 0 and vsd_cvap_representativerelationship eq true";
 
                 // get the response
                 DynamicsResult result = await _dynamicsResultService.Get(endpointUrl);
@@ -207,7 +245,10 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             }
             catch (Exception e)
             {
-                _logger.Error(e, "Unexpected error while looking up representative relationships in COAST. Source = Restitution");
+                _logger.Error(
+                    e,
+                    "Unexpected error while looking up representative relationships in COAST. Source = Restitution"
+                );
                 return BadRequest();
             }
             finally { }
@@ -219,7 +260,8 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             try
             {
                 // set the endpoint action
-                string endpointUrl = "vsd_relationships?$select=vsd_name&$filter=statecode eq 0 and vsd_rest_offenderrelationship eq true";
+                string endpointUrl =
+                    "vsd_relationships?$select=vsd_name&$filter=statecode eq 0 and vsd_rest_offenderrelationship eq true";
 
                 // get the response
                 DynamicsResult result = await _dynamicsResultService.Get(endpointUrl);
@@ -227,7 +269,10 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             }
             catch (Exception e)
             {
-                _logger.Error(e, "Unexpected error while looking up representative relationships in COAST. Source = Restitution");
+                _logger.Error(
+                    e,
+                    "Unexpected error while looking up representative relationships in COAST. Source = Restitution"
+                );
                 return BadRequest();
             }
             finally { }
@@ -239,7 +284,8 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             try
             {
                 // set the endpoint action
-                string endpointUrl = "vsd_policedetachments?$select=vsd_name&$filter=statecode eq 0";
+                string endpointUrl =
+                    "vsd_policedetachments?$select=vsd_name&$filter=statecode eq 0";
 
                 // get the response
                 DynamicsResult result = await _dynamicsResultService.Get(endpointUrl);
@@ -247,7 +293,10 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             }
             catch (Exception e)
             {
-                _logger.Error(e, "Unexpected error while looking up police detachments in COAST. Source = Restitution");
+                _logger.Error(
+                    e,
+                    "Unexpected error while looking up police detachments in COAST. Source = Restitution"
+                );
                 return BadRequest();
             }
             finally { }
@@ -267,7 +316,10 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             }
             catch (Exception e)
             {
-                _logger.Error(e, "Unexpected error while looking up courts in COAST. Source = Restitution");
+                _logger.Error(
+                    e,
+                    "Unexpected error while looking up courts in COAST. Source = Restitution"
+                );
                 return BadRequest();
             }
             finally { }

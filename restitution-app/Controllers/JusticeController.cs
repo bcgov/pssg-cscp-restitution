@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using Gov.Cscp.VictimServices.Public.Models;
 using Gov.Cscp.VictimServices.Public.Services;
 using Gov.Cscp.VictimServices.Public.ViewModels;
@@ -5,8 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Serilog;
-using System.Threading.Tasks;
-using System;
 
 namespace Gov.Cscp.VictimServices.Public.Controllers
 {
@@ -17,7 +17,10 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
         private readonly IDynamicsResultService _dynamicsResultService;
         private readonly ILogger _logger;
 
-        public JusticeController(IConfiguration configuration, IDynamicsResultService dynamicsResultService)
+        public JusticeController(
+            IConfiguration configuration,
+            IDynamicsResultService dynamicsResultService
+        )
         {
             _configuration = configuration;
             this._dynamicsResultService = dynamicsResultService;
@@ -31,7 +34,9 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.Error($"API call to 'SubmitRestitution' made with invalid model state. Error is:\n{ModelState}. Source = Restitution");
+                    _logger.Error(
+                        $"API call to 'SubmitRestitution' made with invalid model state. Error is:\n{ModelState}. Source = Restitution"
+                    );
                     return BadRequest(ModelState);
                 }
 
@@ -39,12 +44,19 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
                 JsonSerializerSettings settings = new JsonSerializerSettings();
                 settings.NullValueHandling = NullValueHandling.Ignore;
                 var modelString = JsonConvert.SerializeObject(model, settings);
-                DynamicsResult result = await _dynamicsResultService.Post(endpointAction, modelString);
+                DynamicsResult result = await _dynamicsResultService.Post(
+                    endpointAction,
+                    modelString
+                );
                 return StatusCode((int)result.statusCode, result.result.ToString());
             }
             catch (Exception e)
             {
-                _logger.Error(e, "Unexpected error while saving victim restitution. Source = Restitution", model);
+                _logger.Error(
+                    e,
+                    "Unexpected error while saving victim restitution. Source = Restitution",
+                    model
+                );
                 return BadRequest();
             }
             finally { }

@@ -1,9 +1,9 @@
 using System;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Gov.Cscp.VictimServices.Public.Controllers
 {
@@ -14,7 +14,10 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
         private readonly ILogger<ConfigurationController> logger;
         private readonly IConfiguration configuration;
 
-        public ConfigurationController(ILogger<ConfigurationController> logger, IConfiguration configuration)
+        public ConfigurationController(
+            ILogger<ConfigurationController> logger,
+            IConfiguration configuration
+        )
         {
             this.logger = logger;
             this.configuration = configuration;
@@ -28,15 +31,26 @@ namespace Gov.Cscp.VictimServices.Public.Controllers
             {
                 var config = new Configuration
                 {
-                    OutageMessage = configuration.GetValue<string>("CONFIGURATION_OUTAGEINFORMATION_MESSAGE"),
-                    OutageStartDate = configuration.GetValue<string>("CONFIGURATION_OUTAGEINFORMATION_STARTDATE"),
-                    OutageEndDate = configuration.GetValue<string>("CONFIGURATION_OUTAGEINFORMATION_ENDDATE")
+                    OutageMessage = configuration.GetValue<string>(
+                        "CONFIGURATION_OUTAGEINFORMATION_MESSAGE"
+                    ),
+                    OutageStartDate = configuration.GetValue<string>(
+                        "CONFIGURATION_OUTAGEINFORMATION_STARTDATE"
+                    ),
+                    OutageEndDate = configuration.GetValue<string>(
+                        "CONFIGURATION_OUTAGEINFORMATION_ENDDATE"
+                    ),
                 };
 
-                if (string.IsNullOrEmpty(config.OutageMessage) || string.IsNullOrEmpty(config.OutageStartDate) || string.IsNullOrEmpty(config.OutageEndDate))
+                if (
+                    string.IsNullOrEmpty(config.OutageMessage)
+                    || string.IsNullOrEmpty(config.OutageStartDate)
+                    || string.IsNullOrEmpty(config.OutageEndDate)
+                )
                 {
                     return Ok();
-                };
+                }
+                ;
 
                 return Ok(config);
             }
