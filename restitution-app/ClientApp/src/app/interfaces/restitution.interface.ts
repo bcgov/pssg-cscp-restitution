@@ -18,11 +18,6 @@ export interface RestitutionInformation {
   authorizeDesignate: boolean;
   designate: iDesignate[];
   contactInformation: iContactInformation;
-  probationOfficerFirstName?: string;
-  probationOfficerLastName?: string;
-  probationOfficerCustodyLocation?: string;
-  probationOfficerPhoneNumber?: string;
-  probationOfficerEmail?: string;
   courtFiles: iCourtFile[];
   vsw: iVSW[];
   documents: iDocument[];

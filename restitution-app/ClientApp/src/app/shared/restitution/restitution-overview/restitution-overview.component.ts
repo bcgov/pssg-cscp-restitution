@@ -35,7 +35,7 @@ export class RestitutionOverviewComponent extends FormBase implements OnInit {
     if (this.formType.val === ResitutionForm.Victim.val || this.formType.val === ResitutionForm.VictimEntity.val) {
       this.applicant = 'Victim';
     } else if (this.formType.val === ResitutionForm.Offender.val) {
-      this.applicant = 'Offender';
+      this.applicant = 'Accused/Offender';
     }
   }
 }

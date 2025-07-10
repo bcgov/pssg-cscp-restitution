@@ -210,36 +210,6 @@
 
     </ng-container>
 
-    <ng-container *ngIf="formType.val === ResitutionForm.Offender.val">
-        <h2 class="blue-header">
-            Correctional <span class="hide-for-print"><button (click)="gotoPageAndEdit(PAGES.RESTITUTION_INFORMATION, 'ProbationOfficerInformation');" class="btn review-btn"><i class="fa fa-pencil"></i> VIEW AND EDIT</button></span>
-        </h2>
-        <table class="table table-striped review-table">
-            <tbody>
-                <tr>
-                    <th>Parole/Probation Officer First Name</th>
-                    <td>{{ valueOrEmpty('restitutionInformation.probationOfficerFirstName') }} </td>
-                </tr>
-                <tr>
-                    <th>Parole/Probation Officer Last Name</th>
-                    <td>{{ valueOrEmpty('restitutionInformation.probationOfficerLastName') }} </td>
-                </tr>
-                <tr>
-                    <th>Custody Location (if applicable)</th>
-                    <td>{{ valueOrEmpty('restitutionInformation.probationOfficerCustodyLocation') }} </td>
-                </tr>
-                <tr>
-                    <th>Phone Number</th>
-                    <td>{{ valueOrEmpty('restitutionInformation.probationOfficerPhoneNumber') | phone }} </td>
-                </tr>
-                <tr>
-                    <th>Email Address</th>
-                    <td>{{ valueOrEmpty('restitutionInformation.probationOfficerEmail') }} </td>
-                </tr>
-            </tbody>
-        </table>
-    </ng-container>
-
     <ng-container>
         <h2 class="blue-header">
             Restitution Order Information <span class="hide-for-print"><button (click)="gotoPageAndEdit(PAGES.RESTITUTION_INFORMATION, 'CourtFileInformation');" class="btn review-btn"><i class="fa fa-pencil"></i> VIEW AND EDIT</button></span>

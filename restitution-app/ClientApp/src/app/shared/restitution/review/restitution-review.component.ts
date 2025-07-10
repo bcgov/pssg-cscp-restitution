@@ -45,7 +45,7 @@ export class RestitutionReviewComponent extends FormBase implements OnInit {
     if (this.formType.val === ResitutionForm.Victim.val || this.formType.val === ResitutionForm.VictimEntity.val) {
       this.applicant_type = 'Victim';
     } else if (this.formType.val === ResitutionForm.Offender.val) {
-      this.applicant_type = 'Offender';
+      this.applicant_type = 'Accused/Offender';
     }
 
     let entityContacts = this.form.get('restitutionInformation.contactInformation.entityContacts') as FormArray;

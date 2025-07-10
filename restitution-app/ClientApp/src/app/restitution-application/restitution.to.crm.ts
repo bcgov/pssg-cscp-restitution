@@ -79,7 +79,7 @@ function getCRMApplication(application: iRestitutionApplication) {
       vsd_voicemailoption: null,
       vsd_contacttitle: '',
       //NOTE: VS-6380 This field was remapped from contact entity as per business ask.
-      vsd_offendercustodylocation: application.RestitutionInformation.probationOfficerCustodyLocation
+      vsd_offendercustodylocation: ''
     };
   } else {
     crm_application = {
@@ -110,7 +110,7 @@ function getCRMApplication(application: iRestitutionApplication) {
       vsd_applicantsprimarycountry: '',
       vsd_voicemailoption: null,
       vsd_applicantssignature: application.RestitutionInformation.signature,
-      vsd_offendercustodylocation: application.RestitutionInformation.probationOfficerCustodyLocation
+      vsd_offendercustodylocation: ''
     };
   }
 
@@ -284,16 +284,6 @@ function getCRMProviderCollection(application: iRestitutionApplication) {
     });
   }
 
-  if (application.ApplicationType.val === ResitutionForm.Offender.val && checkProbationOfficerHasValue(application)) {
-    ret.push({
-      vsd_firstname: application.RestitutionInformation.probationOfficerFirstName,
-      vsd_lastname: application.RestitutionInformation.probationOfficerLastName,
-      vsd_phonenumber: application.RestitutionInformation.probationOfficerPhoneNumber,
-      vsd_email: application.RestitutionInformation.probationOfficerEmail,
-      vsd_relationship1: 'Probation Officer'
-    });
-  }
-
   if (
     (application.ApplicationType.val === ResitutionForm.Victim.val ||
       application.ApplicationType.val === ResitutionForm.VictimEntity.val) &&
@@ -374,15 +364,6 @@ function checkFileHasOffender(file: iCourtFile) {
 }
 function checkHasFileInfo(file: iCourtFile) {
   return file && (file.fileNumber || file.location);
-}
-function checkProbationOfficerHasValue(application: iRestitutionApplication) {
-  return (
-    application.RestitutionInformation.probationOfficerFirstName ||
-    application.RestitutionInformation.probationOfficerLastName ||
-    application.RestitutionInformation.probationOfficerPhoneNumber ||
-    application.RestitutionInformation.probationOfficerEmail ||
-    application.RestitutionInformation.probationOfficerCustodyLocation
-  );
 }
 
 function checkObjectHasValue(obj: any) {

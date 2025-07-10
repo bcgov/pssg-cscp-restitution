@@ -202,7 +202,7 @@ export class EnumHelper {
 
 export const ResitutionForm = {
   Victim: <IOptionSetVal>{ val: 100000002, name: 'Victim' },
-  Offender: <IOptionSetVal>{ val: 100000003, name: 'Offender' },
+  Offender: <IOptionSetVal>{ val: 100000003, name: 'Accused/Offender' },
   VictimEntity: <IOptionSetVal>{ val: 100000004, name: 'Entity Victim' }
 };
 

@@ -70,14 +70,6 @@ export class RestitutionInfoHelper {
       group['vsw'] = fb.array([this.createVSW(fb)]);
     }
 
-    if (form_type.val === ResitutionForm.Offender.val) {
-      group['probationOfficerFirstName'] = [''];
-      group['probationOfficerLastName'] = [''];
-      group['probationOfficerCustodyLocation'] = [''];
-      group['probationOfficerPhoneNumber'] = [''];
-      group['probationOfficerEmail'] = ['', [Validators.email]];
-    }
-
     if (form_type.val === ResitutionForm.VictimEntity.val) {
       let today = new Date();
       group['signatureName'] = ['', Validators.required];
