@@ -217,7 +217,16 @@ export class RestitutionApplicationComponent extends FormBase implements OnInit 
 
     dialogRef.afterClosed().subscribe((res: any) => {
       if (res.cancel) {
-        self.router.navigate(['/application-cancelled']);
+        self.form = self.buildApplicationForm();
+
+        // Clear any state data
+        self.state.data = null;
+
+        if (self.restitutionStepper) {
+          self.restitutionStepper.reset();
+        }
+
+        self.router.navigate(['/']);
       }
     });
   }
