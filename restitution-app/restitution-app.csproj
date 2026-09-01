@@ -10,7 +10,7 @@
         <UserSecretsId>76d21faa-788c-4a11-806e-5926d3169453</UserSecretsId>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Azure.Core" Version="1.52.0" />
+        <PackageReference Include="Azure.Core" Version="1.62.0" />
         <PackageReference Include="Microsoft.AspNetCore.HealthChecks" Version="1.0.0" />
         <PackageReference Include="Microsoft.NETCore.App" Version="2.2.8" />
         <PackageReference Include="Microsoft.NETCore.Jit" Version="2.0.8" />
@@ -18,7 +18,7 @@
         <PackageReference Include="NWebsec.AspNetCore.Middleware" Version="3.0.0" />
         <PackageReference Include="NWebsec.AspNetCore.Mvc" Version="3.0.0" />
         <PackageReference Include="NWebsec.AspNetCore.Mvc.TagHelpers" Version="3.0.0" />
-        <PackageReference Include="Serilog" Version="4.3.1" />
+        <PackageReference Include="Serilog" Version="4.4.0" />
         <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
         <PackageReference Include="Serilog.Enrichers.ClientInfo" Version="2.9.0" />
         <PackageReference Include="Serilog.Enrichers.CorrelationId" Version="3.0.1" />
@@ -30,15 +30,15 @@
         <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
         <PackageReference Include="Serilog.Sinks.Splunk" Version="5.2.0" />
         <PackageReference Include="SerilogTraceListener" Version="3.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.5" />
-        <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="10.0.5" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.11" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="10.0.11" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="10.1.7" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.7" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="10.2.3" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.3" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="CSharpier.MSBuild" Version="1.2.6" PrivateAssets="all" />
+        <PackageReference Include="CSharpier.MSBuild" Version="1.3.0" PrivateAssets="all" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Database\Database.csproj" />
