@@ -4,14 +4,16 @@ name: CI RESTITUTION
 on:
   pull_request:
     branches: [development]
-    paths:
-      - "restitution-app/**"
-      - "Database/**"
+    paths-ignore:
+      - "**/*.md"
+      - "LICENSE"
+      - "docs/**"
   push:
     branches: [development]
-    paths:
-      - "restitution-app/**"
-      - "Database/**"
+    paths-ignore:
+      - "**/*.md"
+      - "LICENSE"
+      - "docs/**"
   schedule:
     - cron: "0 3 1,15 * *"
   workflow_dispatch:
