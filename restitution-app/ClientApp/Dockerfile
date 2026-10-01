@@ -39,7 +39,7 @@
 #                                                                                                 #
 # ##################################################################################################
 # Create build image layer
-FROM node:22.23.1-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2 AS build
+FROM node:22.23.3-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 AS build
 
 # Install python3, make, and g++ for node-gyp/node-sass
 #RUN apk add --no-cache python3 make g++
@@ -63,7 +63,7 @@ RUN npm install --legacy-peer-deps --ignore-scripts
 RUN npm run buildprod
 
 # Create runtime image layer, copy build image contents into this image
-FROM caddy:2.11.4-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648 AS final
+FROM caddy:2.11.4-alpine@sha256:6aeddd44c3078b0f9a35206472a11420648a79c184603ef95957d0a20044cb2b AS final
 RUN apk update && apk upgrade --no-cache
 
 # Strip the file capability the base Caddy image ships on the binary. Caddy binds 2015 (non-privileged),
