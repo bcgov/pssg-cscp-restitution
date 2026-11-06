@@ -28,8 +28,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { image: restitution-api, dockerfile: restitution-app/Dockerfile, context: ., watch: '{restitution-app,Database}/**' }
-          - { image: restitution-ui, dockerfile: restitution-app/ClientApp/Dockerfile, context: ., watch: 'restitution-app/ClientApp/**' }
+          - { image: restitution-api, dockerfile: restitution-app/Dockerfile, context: ., watch: '{restitution-app,Database}/**', args: '--build-arg BUILD_IMAGE_NAME=restitution-api --build-arg BUILD_VERSION=$GITHUB_SHA' }
+          - { image: restitution-ui, dockerfile: restitution-app/ClientApp/Dockerfile, context: ., watch: 'restitution-app/ClientApp/**', args: '--build-arg BUILD_IMAGE_NAME=restitution-ui --build-arg BUILD_VERSION=$GITHUB_SHA' }
     name: ${{ matrix.image }}
     steps:
       # Get the code.
@@ -48,7 +48,7 @@ jobs:
       # Build the image, the same way cd builds it.
       - name: docker build
         if: steps.changed.outputs.yes == 'true'
-        run: docker build -f ${{ matrix.dockerfile }} -t ${{ matrix.image }}:ci ${{ matrix.context }}
+        run: docker build -f ${{ matrix.dockerfile }} -t ${{ matrix.image }}:ci ${{ matrix.args }} ${{ matrix.context }}
       # Scan the image. It reports what it finds and never stops the pull request.
       # From a fork, the findings are a table on the run's Summary only: a fork's token cannot write to the Security tab.
       - name: Trivy
