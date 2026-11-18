@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import {
   ControlContainer,
   UntypedFormArray,
@@ -21,6 +21,7 @@ import { RestitutionInfoHelper } from '../restitution-information/restitution-in
     { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
     { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS }
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class RestitutionContactInformationComponent extends FormBase implements OnInit {

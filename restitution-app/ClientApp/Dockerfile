@@ -62,9 +62,15 @@ RUN npm install --legacy-peer-deps --ignore-scripts
 # Build Angular app
 RUN npm run buildprod
 
+# Caddy builder: rebuild Caddy with golang.org/x/net pinned above the version Caddy ships.
+# Caddy 2.11.9 bundles x/net v0.60.0, which has CVE-2026-78661 (fixed in 0.62.0).
+FROM caddy:2.11.9-builder@sha256:f9beaa5ddbe7df6f26ebbcf9cbf44e05a1917b9bba464f0c3229038d7e2e6e13 AS caddy-builder
+RUN xcaddy build --replace golang.org/x/net=golang.org/x/net@v0.63.0
+
 # Create runtime image layer, copy build image contents into this image
-FROM caddy:2.11.4-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648 AS final
+FROM caddy:2.11.9-alpine@sha256:003a97808e781aa9f7e75cc2f43d34d461099031faf5e20faefb9f61126836f0 AS final
 RUN apk update && apk upgrade --no-cache
+COPY --from=caddy-builder /usr/bin/caddy /usr/bin/caddy
 
 # Strip the file capability the base Caddy image ships on the binary. Caddy binds 2015 (non-privileged),
 # so cap_net_bind_service is unneeded, and its presence blocks exec under allowPrivilegeEscalation:false (no_new_privs).

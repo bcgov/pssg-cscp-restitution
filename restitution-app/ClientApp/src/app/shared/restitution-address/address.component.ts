@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { noop, Observable, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, startWith, switchMap, tap } from 'rxjs/operators';
@@ -12,6 +12,7 @@ import { POSTAL_CODE, ZIP_CODE } from '../regex.constants';
 @Component({
   selector: 'app-restitution-address',
   templateUrl: './address.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class RestitutionAddressComponent implements OnInit {

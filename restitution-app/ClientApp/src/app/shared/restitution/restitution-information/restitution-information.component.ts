@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ControlContainer, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { MomentDateAdapter } from '@angular/material-moment-adapter';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
@@ -22,6 +22,7 @@ export const RESTITUTION_INFORMATION_PROVIDERS = [
   templateUrl: './restitution-information.component.html',
   styleUrls: ['./restitution-information.component.scss'],
   providers: RESTITUTION_INFORMATION_PROVIDERS,
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class RestitutionInformationComponent extends FormBase implements OnInit {
