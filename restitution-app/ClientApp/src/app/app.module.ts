@@ -1,6 +1,6 @@
-import { AngularSignaturePadModule } from '@almothafar/angular-signature-pad';
+import { SignaturePadComponent } from '@almothafar/angular-signature-pad';
 import { CdkTableModule } from '@angular/cdk/table';
-import { provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -189,13 +189,13 @@ import { SignPadDialog } from './sign-dialog/sign-dialog.component';
     MatToolbarModule,
     MatTooltipModule,
     ReactiveFormsModule,
-    AngularSignaturePadModule
+    SignaturePadComponent
   ],
   providers: [
     provideNgxMask(),
     StateService,
     Title,
-    provideHttpClient(withInterceptors([LoadingInterceptor]), withInterceptorsFromDi())
+    provideHttpClient(withXhr(), withInterceptors([LoadingInterceptor]), withInterceptorsFromDi())
   ]
 })
 export class AppModule {}

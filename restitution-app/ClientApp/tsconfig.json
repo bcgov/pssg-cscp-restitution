@@ -13,7 +13,7 @@
       "node_modules/@types"
     ],
     "module": "es2015",
-    "baseUrl": "./",
+    "strict": false,
     "useDefineForClassFields": false
   },
   "exclude": [

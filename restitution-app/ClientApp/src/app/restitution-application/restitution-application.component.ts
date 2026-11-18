@@ -1,5 +1,5 @@
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
-import { Component, HostListener, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, inject, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -48,6 +48,7 @@ export const RESTITUTION_APPLICATION_PROVIDERS = [
   templateUrl: './restitution-application.component.html',
   styleUrls: ['./restitution-application.component.scss'],
   providers: RESTITUTION_APPLICATION_PROVIDERS,
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class RestitutionApplicationComponent extends FormBase implements OnInit {

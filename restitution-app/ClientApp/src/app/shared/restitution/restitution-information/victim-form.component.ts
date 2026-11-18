@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ControlContainer, UntypedFormBuilder } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { LookupsService as ApiLookupsService } from '../../../../api/lookups/lookups.service';
@@ -15,6 +15,7 @@ import {
   templateUrl: './victim-form.component.html',
   styleUrls: ['./restitution-information.component.scss'],
   providers: RESTITUTION_INFORMATION_PROVIDERS,
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class VictimFormComponent extends RestitutionInformationComponent {

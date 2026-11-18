@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 import moment from 'moment';
 
@@ -6,6 +6,7 @@ import moment from 'moment';
   selector: 'app-date-field',
   templateUrl: './date-field.component.html',
   styleUrls: ['./date-field.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class DateFieldComponent implements OnInit {

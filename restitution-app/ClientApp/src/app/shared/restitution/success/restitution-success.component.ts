@@ -1,16 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { StateService } from '../../../services/state.service';
 import { ResitutionForm } from '../../enums-list';
 
 @Component({
-    selector: 'restitution-success',
-    templateUrl: './restitution-success.component.html',
-    styleUrls: ['./restitution-success.component.scss'],
-    standalone: false
+  selector: 'restitution-success',
+  templateUrl: './restitution-success.component.html',
+  styleUrls: ['./restitution-success.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false
 })
 export class RestitutionSuccessComponent {
-  constructor(private router: Router, private state: StateService) {
+  constructor(
+    private router: Router,
+    private state: StateService
+  ) {
     this.router.navigateByUrl('/restitution-success');
   }
 

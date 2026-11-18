@@ -1,18 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
 @Component({
-    selector: 'breadcrumb',
-    templateUrl: './breadcrumb.component.html',
-    styleUrls: ['./breadcrumb.component.scss'],
-    standalone: false
+  selector: 'breadcrumb',
+  templateUrl: './breadcrumb.component.html',
+  styleUrls: ['./breadcrumb.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false
 })
 export class BreadcrumbComponent implements OnInit {
   public breadcrumbs: Array<{}> = [];
   public visible = false;
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit() {
     const ROUTE_DATA_BREADCRUMB: string = 'breadcrumb';
