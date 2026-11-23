@@ -1,10 +1,17 @@
 # The lint and tests ci runs on every pull request, besides the build and the scans. The team keeps this file.
 # They report only: a failure shows on the pull request and blocks nothing.
 # Tests that need a database, a secret or a live service stay out of ci and are left to the team.
-# List folders. ci looks at what is in each one. A package.json runs npm ci, then npm run lint, or for tests
-# npm run test:ci when it has one, else npm test. A .csproj or .sln runs dotnet format --verify-no-changes or dotnet test.
-# For example:
-#   lint: [ui]
-#   tests: [src/Permit.Api.Tests]
+#
+# List folders, not names. ci runs what each folder holds:
+#   a package.json      lint runs npm run lint; tests run npm run test:ci, or npm test
+#   a .csproj or .sln   lint runs dotnet format --verify-no-changes; tests run dotnet test
+#
+# This repo's folders:
+#   restitution-api   restitution-app
+#   restitution-ui    restitution-app/ClientApp
+# For example, every folder linted, and the tests of restitution-ui:
+#   lint: [restitution-app, restitution-app/ClientApp]
+#   tests: [restitution-app/ClientApp]
+# A .NET test project goes in tests by its own folder, like restitution-app.Tests.
 lint: []
 tests: []
