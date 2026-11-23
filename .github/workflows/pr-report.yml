@@ -135,7 +135,7 @@ jobs:
           }
           # Write the comment, or write it again in place.
           post() {
-            W=("${NOTES[@]}"); case "$CQ" in *" new alerts"*) W+=("CodeQL found $CQ.");; failed* | "did not finish"*) W+=("CodeQL $CQ.");; esac
+            W=("${NOTES[@]}"); case "$CQ" in [1-9]*) W+=("CodeQL found $CQ.");; failed* | "did not finish"*) W+=("CodeQL $CQ.");; esac
             {
               echo '<!-- pr-report -->'; echo '### Checks'; echo
               if [ ${#W[@]} -eq 0 ]; then echo 'Nothing needs a look.'; else echo 'Needs a look:'; printf -- '- %s\n' "${W[@]}"; fi
