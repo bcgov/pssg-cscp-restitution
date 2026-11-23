@@ -29,6 +29,7 @@ on:
         description: 'rollback only: all, or one image. All by default'
         type: choice
         options: [all, restitution-api, restitution-ui]
+        default: all
 
 permissions:
   contents: read
