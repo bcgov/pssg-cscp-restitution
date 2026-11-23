@@ -17,9 +17,9 @@
 - [ ] Each package added or upgraded is named above, with why, and its lock file is in this pull request.
 - [ ] A database change is in this pull request as a script or migration, and says whether it can be undone.
 
-## Does DevOps need to do anything outside the code?
+## Does DevOps need to set up, change or add anything in the cluster?
 <!-- Tick Yes and say what above when it needs: a new or changed setting or secret, and in which environments;
-     a new service, route or volume; a database change run in test and prod; or anything else on the cluster
-     or in GitHub. DevOps reaches out. Tick one. -->
+     a new service, route, volume or scheduled job; a database change run in test and prod; or anything else in
+     OpenShift. DevOps reaches out. Tick one. -->
 - [ ] No
 - [ ] Yes
