@@ -1,0 +1,10 @@
+# The lint and tests ci runs on every pull request, besides the build and the scans. The team keeps this file.
+# They report only: a failure shows on the pull request and blocks nothing.
+# Tests that need a database, a secret or a live service stay out of ci and are left to the team.
+# List folders. ci looks at what is in each one. A package.json runs npm ci, then npm run lint, or for tests
+# npm run test:ci when it has one, else npm test. A .csproj or .sln runs dotnet format --verify-no-changes or dotnet test.
+# For example:
+#   lint: [ui]
+#   tests: [src/Permit.Api.Tests]
+lint: []
+tests: []
