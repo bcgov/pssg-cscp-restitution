@@ -185,4 +185,4 @@ jobs:
             done
             [ "$NEED" = 1 ] || echo "Nothing found that would stop prod."
           } > notes.md
-          gh release create "$V" -R "$GITHUB_REPOSITORY" --target "$M" --title "$V" --notes-file notes.md
+          gh release create "$V" -R "$GITHUB_REPOSITORY" --target "$M" --title "Restitution release $V" --notes-file notes.md
