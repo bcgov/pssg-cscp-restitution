@@ -1,17 +1,20 @@
-# The lint and tests ci runs on every pull request, besides the build and the scans. The team keeps this file.
-# They report only: a failure shows on the pull request and blocks nothing.
-# Tests that need a database, a secret or a live service stay out of ci and are left to the team.
+# What ci lints and tests on every pull request. The app team keeps this list.
+# It only reports: a failure shows in ci's comment on the pull request and never blocks a merge.
+# Leave out tests that need a database, a secret or a running service.
 #
-# List folders, not names. ci runs what each folder holds:
-#   a package.json      lint runs npm run lint; tests run npm run test:ci, or npm test
-#   a .csproj or .sln   lint runs dotnet format --verify-no-changes; tests run dotnet test
+# Write folders, and ci runs what each one holds:
+#   a package.json      lint: npm run lint                        tests: npm run test:ci, or npm test
+#   a .csproj or .sln   lint: dotnet format --verify-no-changes   tests: dotnet test
 #
 # This repo's folders:
-#   restitution-api   restitution-app
-#   restitution-ui    restitution-app/ClientApp
-# For example, every folder linted, and the tests of restitution-ui:
+#   restitution-api   restitution-app             .NET
+#   restitution-ui    restitution-app/ClientApp   Angular
+#
+# To lint both and run the tests of restitution-ui, set:
 #   lint: [restitution-app, restitution-app/ClientApp]
 #   tests: [restitution-app/ClientApp]
-# A .NET test project goes in tests by its own folder, like restitution-app.Tests.
+# A .NET test project is listed by its own folder. With restitution-api's tests in restitution-app.Tests:
+#   tests: [restitution-app/ClientApp, restitution-app.Tests]
+
 lint: []
 tests: []
