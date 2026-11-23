@@ -56,10 +56,12 @@ jobs:
             yes: ['${{ matrix.watch }}', '${{ matrix.dockerfile }}', '.dockerignore', '.github/workflows/cd.yml']
       # Build the image once, labelled with its commit.
       - name: docker build
+        id: build
         if: steps.changed.outputs.yes != 'false'
         run: docker build -f ${{ matrix.dockerfile }} -t ${{ matrix.image }}:build --label org.opencontainers.image.revision="$GITHUB_SHA" ${{ matrix.args }} ${{ matrix.context }}
       # Scan it before it is pushed. This only reports: the image is pushed with what was found.
       - name: Trivy
+        id: trivy
         if: steps.changed.outputs.yes != 'false'
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
@@ -69,7 +71,7 @@ jobs:
           format: sarif
           output: trivy.sarif
           limit-severities-for-sarif: true
-      # Send Trivy's findings to GitHub, under Security → Code scanning.
+      # Send Trivy's findings to GitHub, under Security, Code scanning.
       - name: report to GitHub
         if: always() && hashFiles('trivy.sarif') != ''
         uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
@@ -78,17 +80,16 @@ jobs:
           category: trivy-${{ matrix.image }}
       # Put what Trivy found on the run's Summary, as a table. It changes nothing else.
       - name: findings on the summary
-        if: always() && hashFiles('trivy.sarif', 'trivy.txt') != ''
+        if: always() && hashFiles('trivy*.sarif') != ''
         env:
           IMAGE: ${{ matrix.image }}
         run: |
-          if [ -f trivy.sarif ]; then
-            N=$(jq '[.runs[].results[]] | length' trivy.sarif)
-            echo "### Trivy, $IMAGE: $N fixable HIGH or CRITICAL" | tee -a "$GITHUB_STEP_SUMMARY"
-            [ "$N" -eq 0 ] || { echo "| CVE | Package | Installed | Fixed in | Severity |"; echo "|---|---|---|---|---|"; jq -r '.runs[].results[] | (.message.text | split("\n") | map(capture("^(?<key>[^:]+): (?<value>.*)$")?) | from_entries) as $m | "| \(.ruleId) | \($m.Package) | \($m["Installed Version"]) | \($m["Fixed Version"]) | \($m.Severity) |"' trivy.sarif | sort -u; } | tee -a "$GITHUB_STEP_SUMMARY"
-          else
-            { echo "### Trivy, $IMAGE"; echo '```'; cat trivy.txt; echo '```'; } | tee -a "$GITHUB_STEP_SUMMARY"
-          fi
+          for F in trivy*.sarif; do
+            W=$IMAGE; [ "$F" = trivy.sarif ] || W="the npm packages of $IMAGE"
+            N=$(jq '[.runs[].results[]] | length' "$F")
+            echo "### Trivy, $W: $N fixable HIGH or CRITICAL" | tee -a "$GITHUB_STEP_SUMMARY"
+            [ "$N" -eq 0 ] || { echo "| CVE | Package | Installed | Fixed in | Severity |"; echo "|---|---|---|---|---|"; jq -r '.runs[].results[] | (.message.text | split("\n") | map(capture("^(?<key>[^:]+): (?<value>.*)$")?) | from_entries) as $m | "| \(.ruleId) | \($m.Package) | \($m["Installed Version"]) | \($m["Fixed Version"]) | \($m.Severity) |"' "$F" | sort -u; } | tee -a "$GITHUB_STEP_SUMMARY"
+          done
       # Sign in to the registry as github-builder.
       - name: docker login
         if: steps.changed.outputs.yes != 'false'
@@ -105,6 +106,24 @@ jobs:
           docker push "$IMAGE:$TAG"
           docker push "$IMAGE:dev"
           echo "**${{ matrix.image }}** pushed as \`$TAG\`, and the dev tag moved to it." >> "$GITHUB_STEP_SUMMARY"
+      # Keep what this run found, for the comment on each pull request: what dev holds already.
+      # A scan that did not finish is kept as such, never as one that found nothing.
+      - name: note what it found
+        if: (steps.changed.outputs.yes != 'false') && hashFiles('trivy.sarif') != ''
+        env:
+          IMAGE: ${{ matrix.image }}
+          BUILT: ${{ steps.build.outcome }}
+          SCANNED: ${{ steps.trivy.outcome }}
+        run: |
+          T='[]'; [ ! -f trivy.sarif ] || T=$(jq -c '[.runs[].results[].ruleId] | unique' trivy.sarif)
+          H=null; [ ! -f hadolint.json ] || H=$(jq length hadolint.json)
+          jq -n --arg i "$IMAGE" --arg b "$BUILT" --arg s "$SCANNED" --argjson t "$T" --argjson h "$H" '{image: $i, build: $b, scan: $s, trivy: $t, hadolint: $h}' > found.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: (steps.changed.outputs.yes != 'false') && hashFiles('trivy.sarif') != ''
+        with:
+          name: dev-${{ matrix.image }}
+          path: found.json
+          retention-days: 90
       # SBOM: list what is in the image.
       - name: SBOM
         if: steps.changed.outputs.yes != 'false'
@@ -191,13 +210,14 @@ jobs:
           LINK="${SONAR_URL%/}/dashboard?id=$K${PR:+&pullRequest=$PR}"
           T=$(find . -name report-task.txt -not -path '*/node_modules/*' 2>/dev/null | head -1); TASK=""
           [ -z "$T" ] || TASK=$(sed -n "s/^ceTaskUrl=//p" "$T")
-          [ -z "$TASK" ] || for i in $(seq 1 36); do S=$(curl -s -u "$SONAR_TOKEN:" "$TASK" | jq -r '.task.status // empty'); case "$S" in SUCCESS|FAILED|CANCELED) break;; esac; sleep 5; done
+          [ -z "$TASK" ] || for _ in $(seq 1 36); do S=$(curl -s -u "$SONAR_TOKEN:" "$TASK" | jq -r '.task.status // empty'); case "$S" in SUCCESS|FAILED|CANCELED) break;; esac; sleep 5; done
           G=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST_URL/api/qualitygates/project_status?$Q" | jq -r '.projectStatus.status // "not read"')
           case "$G" in OK) G=passed;; ERROR) G=failed;; esac
           I=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST_URL/api/issues/search?componentKeys=$K${PR:+&pullRequest=$PR}&resolved=false&ps=1&facets=types")
           N=$(echo "$I" | jq -r '.total // "?"')
           C() { echo "$I" | jq -r --arg t "$1" '[.facets[]?.values[]? | select(.val == $t) | .count][0] // 0'; }
           echo "### SonarQube, $W: $N open issues ($(C BUG) bugs, $(C VULNERABILITY) vulnerabilities, $(C CODE_SMELL) code smells). Quality gate: $G (reports only). [Open the results]($LINK)" | tee -a "$GITHUB_STEP_SUMMARY"
+          jq -n --arg g "$G" --arg n "$N" '{gate: $g, issues: $n}' > sonar.json
 
   # When the new build is in dev, ZAP visits dev: every build is scanned.
   zap:

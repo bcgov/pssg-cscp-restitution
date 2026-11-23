@@ -1,12 +1,38 @@
-# Scans the image tagged prod, for each image, on the 1st and 15th of each month. New vulnerabilities are published
-# after an image was built, so this is how prod hears about them. It only reports: the fix is a new build, promoted.
+# Scans builds with Trivy. On the 1st and 15th of each month it scans the build each image runs in prod, and opens
+# one issue per image for DevOps: new vulnerabilities are published after an image was built. promote.yml calls it before a
+# build moves, and release.yml for what would stop prod. For prod, a fixable HIGH or CRITICAL that .trivyignore does not
+# hold fails it, so nothing moves. It hands back each build’s digest, so the very build scanned is the one that moves.
 name: scan
 
-# When it runs: the 1st and 15th of each month, or by hand.
+# When it runs: the 1st and 15th of each month, by hand, or called by promote and release.
 on:
   schedule:
     - cron: '47 14 1,15 * *'
   workflow_dispatch: {}
+  workflow_call:
+    inputs:
+      tag:
+        description: the tag to scan; none means prod
+        type: string
+        default: ''
+      images:
+        description: the images, as a JSON list; none means each image Trivy is on for
+        type: string
+        default: ''
+      stop:
+        description: fail on a fixable HIGH or CRITICAL that .trivyignore does not hold
+        type: boolean
+        default: false
+      same:
+        description: a tag that must name the very same build already
+        type: string
+        default: ''
+    # Each image's digest, and how many findings would stop prod.
+    outputs:
+      restitution-api: { value: "${{ jobs.scan.outputs.restitution-api }}" }
+      restitution-api-found: { value: "${{ jobs.scan.outputs.restitution-api-found }}" }
+      restitution-ui: { value: "${{ jobs.scan.outputs.restitution-ui }}" }
+      restitution-ui-found: { value: "${{ jobs.scan.outputs.restitution-ui-found }}" }
 
 permissions:
   contents: read
@@ -20,73 +46,148 @@ jobs:
     permissions:
       contents: read
       issues: write
-    # One job per image.
     strategy:
       fail-fast: false
       matrix:
-        image: [restitution-api, restitution-ui]
+        image: ${{ fromJSON(inputs.images || '["restitution-api","restitution-ui"]') }}
     name: ${{ matrix.image }}
-    # One scan of an image at a time, from the schedule or by hand, so an older result never closes an issue that a
-    # newer one wrote on. A run that comes in while one is going waits for it, and only the newest of those waiting runs.
+    # One scan of prod at a time for an image, so an older result never closes an issue that a newer one wrote on.
     concurrency:
-      group: prod-scan-${{ matrix.image }}
+      group: ${{ inputs.tag != '' && github.run_id || 'prod-scan' }}-${{ matrix.image }}
       cancel-in-progress: false
+    outputs:
+      restitution-api: ${{ steps.pull.outputs.restitution-api }}
+      restitution-api-found: ${{ steps.count.outputs.restitution-api }}
+      restitution-ui: ${{ steps.pull.outputs.restitution-ui }}
+      restitution-ui-found: ${{ steps.count.outputs.restitution-ui }}
     # Where the image is. The registry and the namespace are GitHub secrets, never written here.
     env:
       REGISTRY: ${{ secrets.REGISTRY }}
       IMAGE: ${{ secrets.REGISTRY }}/${{ secrets.REGISTRY_NAMESPACE }}/${{ matrix.image }}
+      NAME: ${{ matrix.image }}
+      TAG: ${{ inputs.tag || 'prod' }}
+      CALLED: ${{ inputs.tag }}
+      SAME: ${{ inputs.same }}
+    # Called without stop, each step only reports, except the check that the tag before names the very same build.
     steps:
       # Get the code, for its .trivyignore.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        continue-on-error: ${{ inputs.tag != '' && !inputs.stop }}
         with: { persist-credentials: false }
-      # Sign in to the registry as github-builder.
-      - name: docker login
-        run: echo "$BUILDER_TOKEN" | docker login "$REGISTRY" -u github-builder --password-stdin
+      # Sign in as github-builder, pull the build, and note its digest and the commit it was built from.
+      - name: docker pull
+        id: pull
+        continue-on-error: ${{ inputs.tag != '' && !inputs.stop }}
         env:
           BUILDER_TOKEN: ${{ secrets.BUILDER_TOKEN }}
-      # Pull the image tagged prod. An image with no prod tag yet has nothing to scan.
-      - name: docker pull
-        id: prod
         run: |
-          docker pull -q "$IMAGE:prod" && docker tag "$IMAGE:prod" ${{ matrix.image }}:prod && echo "there=true" >> "$GITHUB_OUTPUT" \
-            || echo "::notice::${{ matrix.image }} has no prod tag yet"
-      # Scan it. This only reports and never fails the run.
+          echo "$BUILDER_TOKEN" | docker login "$REGISTRY" -u github-builder --password-stdin
+          if ! docker pull -q "$IMAGE:$TAG"; then
+            [ -n "$CALLED" ] || { echo "::notice::$NAME has no prod tag yet"; exit 0; }
+            echo "::error::$NAME has no $TAG tag."; exit 1
+          fi
+          docker tag "$IMAGE:$TAG" "$NAME:scan"
+          D=$(docker inspect --format '{{index .RepoDigests 0}}' "$IMAGE:$TAG" | cut -d@ -f2)
+          [ -n "$D" ] || { echo "::error::$IMAGE:$TAG has no digest."; exit 1; }
+          REV=$(docker inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$IMAGE:$TAG")
+          [ "$REV" != "<no value>" ] || REV=""
+          { echo "$NAME=$D"; echo "rev=$REV"; echo "there=true"; } >> "$GITHUB_OUTPUT"
+      # The tag before must name the very same build: a version moves on only from the environment that runs it.
+      - name: the same build
+        if: inputs.same != '' && steps.pull.outputs.there == 'true'
+        env:
+          D: ${{ steps.pull.outputs[matrix.image] }}
+        run: |
+          docker pull -q "$IMAGE:$SAME" > /dev/null || { echo "::error::$NAME has no $SAME tag."; exit 1; }
+          H=$(docker inspect --format '{{index .RepoDigests 0}}' "$IMAGE:$SAME" | cut -d@ -f2)
+          [ "$H" = "$D" ] || { echo "::error::$SAME does not run $TAG for $NAME, so nothing moves."; exit 1; }
+      # Scan the image. With stop, a fixable HIGH or CRITICAL that .trivyignore does not hold fails this step.
       - name: Trivy
         id: trivy
-        if: steps.prod.outputs.there
+        if: steps.pull.outputs.there == 'true'
+        continue-on-error: ${{ inputs.tag != '' && !inputs.stop }}
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
-          image-ref: ${{ matrix.image }}:prod
+          image-ref: ${{ matrix.image }}:scan
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           format: sarif
           output: trivy.sarif
           limit-severities-for-sarif: true
+          exit-code: ${{ inputs.stop && '1' || '0' }}
+      # An image that holds only an app's built files carries no list of its npm packages, so read the lockfiles of the
+      # commit the build was made from. A build with no such label was made before this pipeline, and only its image is scanned.
+      - name: npm lockfiles
+        id: npm
+        if: ${{ steps.pull.outputs.rev != '' }}
+        continue-on-error: ${{ inputs.tag != '' && !inputs.stop }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REV: ${{ steps.pull.outputs.rev }}
+          LOCKS: '{"restitution-ui":["restitution-app/ClientApp"]}'
+        run: |
+          for d in $(echo "$LOCKS" | jq -r --arg i "$NAME" '.[$i][]?'); do
+            mkdir -p "npm/$d"
+            if ! gh api -H "Accept: application/vnd.github.raw" "repos/$GITHUB_REPOSITORY/contents/$d/package-lock.json?ref=$REV" > "npm/$d/package-lock.json" 2> gh.err; then
+              # A folder with no lockfile is skipped; any other error fails the step.
+              grep -q "HTTP 404" gh.err || { echo "::error::Could not read $d/package-lock.json at $REV: $(cat gh.err)"; exit 1; }
+              rm -rf "npm/$d"
+            fi
+          done
+          if [ -n "$(find npm -name package-lock.json 2>/dev/null)" ]; then echo "found=true" >> "$GITHUB_OUTPUT"; fi
+      # Scan those packages, the same way.
+      - name: Trivy, npm packages
+        if: ${{ steps.npm.outputs.found == 'true' }}
+        continue-on-error: ${{ inputs.tag != '' && !inputs.stop }}
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: npm
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          format: sarif
+          output: trivy-npm.sarif
+          limit-severities-for-sarif: true
+          exit-code: ${{ inputs.stop && '1' || '0' }}
+      # How many findings would stop prod: each weakness once, in the image and its npm packages. ? when any part of the
+      # scan did not finish, so the release page never says nothing would stop prod for a scan that was not whole.
+      - name: count
+        id: count
+        if: always() && steps.pull.outputs.there == 'true'
+        env:
+          NPM: ${{ steps.npm.outcome }}
+          FOUND: ${{ steps.npm.outputs.found }}
+        run: |
+          N='?'
+          if [ -f trivy.sarif ] && [ "$NPM" != failure ] && { [ "$FOUND" != true ] || [ -f trivy-npm.sarif ]; }; then
+            N=$(jq -s '[.[].runs[].results[].ruleId] | unique | length' trivy*.sarif)
+          fi
+          echo "$NAME=$N" >> "$GITHUB_OUTPUT"
       # Put what Trivy found on the run's Summary, as a table. It changes nothing else.
       - name: findings on the summary
-        if: always() && hashFiles('trivy.sarif', 'trivy.txt') != ''
+        if: always() && hashFiles('trivy*.sarif') != ''
         env:
           IMAGE: ${{ matrix.image }}
         run: |
-          if [ -f trivy.sarif ]; then
-            N=$(jq '[.runs[].results[]] | length' trivy.sarif)
-            echo "### Trivy, $IMAGE: $N fixable HIGH or CRITICAL" | tee -a "$GITHUB_STEP_SUMMARY"
-            [ "$N" -eq 0 ] || { echo "| CVE | Package | Installed | Fixed in | Severity |"; echo "|---|---|---|---|---|"; jq -r '.runs[].results[] | (.message.text | split("\n") | map(capture("^(?<key>[^:]+): (?<value>.*)$")?) | from_entries) as $m | "| \(.ruleId) | \($m.Package) | \($m["Installed Version"]) | \($m["Fixed Version"]) | \($m.Severity) |"' trivy.sarif | sort -u; } | tee -a "$GITHUB_STEP_SUMMARY"
-          else
-            { echo "### Trivy, $IMAGE"; echo '```'; cat trivy.txt; echo '```'; } | tee -a "$GITHUB_STEP_SUMMARY"
-          fi
+          for F in trivy*.sarif; do
+            W=$IMAGE; [ "$F" = trivy.sarif ] || W="the npm packages of $IMAGE"
+            N=$(jq '[.runs[].results[]] | length' "$F")
+            echo "### Trivy, $W: $N fixable HIGH or CRITICAL" | tee -a "$GITHUB_STEP_SUMMARY"
+            [ "$N" -eq 0 ] || { echo "| CVE | Package | Installed | Fixed in | Severity |"; echo "|---|---|---|---|---|"; jq -r '.runs[].results[] | (.message.text | split("\n") | map(capture("^(?<key>[^:]+): (?<value>.*)$")?) | from_entries) as $m | "| \(.ruleId) | \($m.Package) | \($m["Installed Version"]) | \($m["Fixed Version"]) | \($m.Severity) |"' "$F" | sort -u; } | tee -a "$GITHUB_STEP_SUMMARY"
+          done
       # One issue per image for its fixable HIGH and CRITICAL: each scan that ran to the end adds its count, and one that
-      # finds none closes it. A scan that failed counts nothing here; the step below opens its own issue.
+      # finds none closes it. A scan that failed counts nothing here, nor one whose npm packages were not scanned; the step below opens its own issue.
       - name: its issue
-        if: always() && steps.trivy.outcome == 'success' && hashFiles('trivy.sarif') != ''
+        if: always() && inputs.tag == '' && steps.trivy.outcome == 'success' && hashFiles('trivy.sarif') != '' && steps.npm.outcome != 'failure' && (steps.npm.outputs.found != 'true' || hashFiles('trivy-npm.sarif') != '')
         env:
           GH_TOKEN: ${{ github.token }}
           IMAGE: ${{ matrix.image }}
         run: |
           # Count each weakness once, by its rating, however many places in the image hold it.
-          COUNT='[.runs[].results[] | {r: .ruleId, s: (.message.text | capture("Severity: (?<s>[A-Z]+)").s)}] | unique'
-          C=$(jq "$COUNT | map(select(.s == \"CRITICAL\")) | length" trivy.sarif)
-          H=$(jq "$COUNT | map(select(.s == \"HIGH\")) | length" trivy.sarif)
+          COUNT='[.[].runs[].results[] | {r: .ruleId, s: (.message.text | capture("Severity: (?<s>[A-Z]+)").s)}] | unique'
+          C=$(jq -s "$COUNT | map(select(.s == \"CRITICAL\")) | length" trivy*.sarif)
+          H=$(jq -s "$COUNT | map(select(.s == \"HIGH\")) | length" trivy*.sarif)
           DAY=$(date -u +%Y-%m-%d)
           OPEN=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --search "in:title \"prod scan: $IMAGE\"" --json number,title --jq "[.[] | select(.title == \"prod scan: $IMAGE\") | .number][0] // empty")
           if [ $((C + H)) -eq 0 ]; then
@@ -102,5 +203,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh issue create -R "$GITHUB_REPOSITORY" --title "prod scan could not run: ${{ matrix.image }}" --label cicd --assignee rohithvarmayadla \
-            --body "The scan of ${{ matrix.image }}:prod could not run. The run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          if [ -z "$CALLED" ]; then T="prod scan could not run: $NAME"; B="The scan of $NAME:prod could not run."
+          else T="promote failed: $NAME"; B="The scan of $NAME:$TAG stopped it, started by $GITHUB_ACTOR: a fixable HIGH or CRITICAL that .trivyignore does not hold, a build it could not scan, or a version the environment before does not run. Nothing moved."; fi
+          gh issue create -R "$GITHUB_REPOSITORY" --title "$T" --label cicd --assignee rohithvarmayadla --body "$B The run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"

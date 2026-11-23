@@ -1,0 +1,158 @@
+# Writes one comment on each pull request with what ci found, and keeps it up to date: each image's build, the
+# Dockerfile check and Trivy, CodeQL, SonarQube, lint and tests. It only reports. It also sets the label needs-devops
+# from the DevOps question in the pull request's description. It reads what ci kept and never runs the pull request's code.
+name: pr-report
+
+# When it runs: after ci, and when a pull request is opened or its description is edited.
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+  pull_request_target:
+    types: [opened, edited, reopened]
+
+permissions: {}
+
+jobs:
+  # Yes to the DevOps question adds the label needs-devops, and No takes it off. No answer leaves it as it is.
+  label:
+    if: github.event_name == 'pull_request_target'
+    runs-on: ubuntu-24.04
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: needs-devops
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          BODY: ${{ github.event.pull_request.body }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          A=$(printf '%s' "$BODY" | tr -d '\r' | sed -n '/Does DevOps need/,$p')
+          if grep -qiE '^\s*[-*] \[x\] Yes' <<< "$A"; then
+            gh label create needs-devops -R "$GITHUB_REPOSITORY" --color D93F0B --description "The pull request needs DevOps" --force > /dev/null
+            gh api "repos/$GITHUB_REPOSITORY/issues/$PR/labels" -f "labels[]=needs-devops" > /dev/null
+          elif grep -qiE '^\s*[-*] \[x\] No' <<< "$A"; then
+            gh api -X DELETE "repos/$GITHUB_REPOSITORY/issues/$PR/labels/needs-devops" > /dev/null 2>&1 || true
+          fi
+          # A description edited after ci: the comment's DevOps row takes the new answer too. Dependabot's count as No.
+          if [ "$AUTHOR" = 'dependabot[bot]' ]; then DV=no; elif grep -qiE '^\s*[-*] \[x\] Yes' <<< "$A"; then DV=yes; elif grep -qiE '^\s*[-*] \[x\] No' <<< "$A"; then DV=no; else DV="not answered"; fi
+          C=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- pr-report -->"))) | .id' | head -1)
+          [ -n "$C" ] || exit 0
+          gh api "repos/$GITHUB_REPOSITORY/issues/comments/$C" --jq .body | sed -E "s/^\| DevOps needed \| .* \|$/| DevOps needed | $DV |/" > body.md
+          gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$C" -F body=@body.md > /dev/null
+
+  # The comment. It runs after ci, in this repo's own context, and reads only what ci kept: IDs, counts and results.
+  report:
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      checks: read
+      issues: write
+      pull-requests: write
+    # One report at a time for a branch; the newest run wins.
+    concurrency:
+      group: pr-report-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+      cancel-in-progress: true
+    steps:
+      - name: the comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN: ${{ github.event.workflow_run.id }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          OWNER: ${{ github.event.workflow_run.head_repository.owner.login }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+          BASE: development
+          SONAR_URL: ${{ vars.SONAR_URL }}
+        run: |
+          R=$GITHUB_REPOSITORY
+          PR=$(gh api -X GET "repos/$R/pulls" -f state=open -f head="$OWNER:$BRANCH" --jq '.[0].number // empty')
+          [ -n "$PR" ] || { echo "No open pull request for this run."; exit 0; }
+          gh api "repos/$R/pulls/$PR" > pr.json
+          [ "$(jq -r .head.sha pr.json)" = "$SHA" ] || { echo "The pull request has a newer commit; its own run reports."; exit 0; }
+          AUTHOR=$(jq -r .user.login pr.json)
+          gh run download "$RUN" -R "$R" -D in 2> /dev/null || true
+          # What ci kept can come from the pull request's own code, so only IDs, numbers and known words are read from it.
+          ID() { grep -E '^[A-Za-z0-9._:-]+$' || true; }
+          NOTES=(); ROWS=""
+          # Each image: its build, the Dockerfile check, and what Trivy found that dev does not hold already.
+          for I in restitution-api restitution-ui; do
+            F=in/ci-$I/found.json
+            [ -f "$F" ] || { ROWS+="| $I | did not run | | |"$'\n'; continue; }
+            case "$(jq -r .build "$F" 2> /dev/null)" in success) B=built;; skipped) B="not touched";; failure) B=failed; NOTES+=("The build of $I failed.");; *) B="did not finish";; esac
+            H=$(jq -r '.hadolint | numbers' "$F" 2> /dev/null || true); [ -z "$H" ] || H="$H findings"
+            T=""
+            SC=$(jq -r '.scan // "success"' "$F" 2> /dev/null || true)
+            if [ "$B" = built ] && [ "$SC" != success ]; then
+              T="not scanned"; NOTES+=("Trivy did not finish scanning $I, so what it holds is not known.")
+            elif [ "$B" = built ]; then
+              { jq -r '.trivy[]' "$F" 2> /dev/null || true; } | ID | sort -u > pr.txt
+              # dev's findings: the newest scan cd kept for this image, from a run of this repo's development, never from a fork.
+              A=$(gh api "repos/$R/actions/artifacts?name=dev-$I&per_page=30" --jq '[.artifacts[] | select((.expired | not) and .workflow_run.head_branch == env.BASE and .workflow_run.head_repository_id == .workflow_run.repository_id)][0].workflow_run.id // empty')
+              rm -rf dev; [ -z "$A" ] || gh run download "$A" -R "$R" -n "dev-$I" -D dev 2> /dev/null || true
+              if [ -f dev/found.json ]; then
+                { jq -r '.trivy[]' dev/found.json 2> /dev/null || true; } | ID | sort -u > dev.txt
+                comm -23 pr.txt dev.txt > new.txt; N=$(wc -l < new.txt); T="$N new, $(comm -12 pr.txt dev.txt | wc -l) already in dev"
+                [ "$N" = 0 ] || NOTES+=("$I has $N new fixable HIGH or CRITICAL: $(head -5 new.txt | paste -sd, - | sed 's/,/, /g').")
+              else T="$(wc -l < pr.txt), and dev has no recent scan to compare"; fi
+            fi
+            ROWS+="| $I | $B | $H | $T |"$'\n'
+          done
+          # Lint and tests, as listed in .github/checks.yml.
+          for K in lint tests; do
+            if [ ! -f in/checks/checks.json ]; then V="did not run"
+            else V=$(jq -r --arg k "$K" '[.[] | select(.kind == $k) | "`\(.dir | gsub("[^A-Za-z0-9._/-]"; ""))` \(if (.result | IN("passed", "failed", "no such folder", "no package.json or .csproj")) then .result else "not read" end)"] | join(", ")' in/checks/checks.json 2> /dev/null) || V="not read"
+              [ -n "$V" ] || V="not set up: list folders in .github/checks.yml"
+              case "$V" in *" failed"*) NOTES+=("Some $K failed.");; esac
+            fi
+            if [ "$K" = lint ]; then LINT=$V; else TESTS=$V; fi
+          done
+          # SonarQube: its quality gate and open issues, from the run. Dependabot and forks cannot read its token.
+          S=in/sonar/sonar.json
+          if [ -f "$S" ]; then
+            SQ="gate $(jq -r '.gate | if IN("passed", "failed") then . else "not read" end' "$S" 2> /dev/null || echo 'not read'), $(jq -r '.issues | tonumber? // "?"' "$S" 2> /dev/null || echo '?') open issues"
+            [ -z "$SONAR_URL" ] || SQ="$SQ, [open the results](${SONAR_URL%/}/dashboard?id=pssg-cscp-restitution&pullRequest=$PR)"
+          elif [ "$AUTHOR" = 'dependabot[bot]' ] || [ "$(jq -r .head.repo.full_name pr.json)" != "$R" ]; then SQ="not run for Dependabot or a fork"
+          elif [ -z "$SONAR_URL" ]; then SQ="not set up"
+          else SQ="did not run"; fi
+          case "$SQ" in "gate failed"*) NOTES+=("SonarQube's quality gate failed.");; esac
+          # The DevOps question. Dependabot's pull requests count as No.
+          BODY=$(jq -r '.body // ""' pr.json); A=$(printf '%s' "$BODY" | tr -d '\r' | sed -n '/Does DevOps need/,$p')
+          if [ "$AUTHOR" = 'dependabot[bot]' ]; then DV=no; elif grep -qiE '^\s*[-*] \[x\] Yes' <<< "$A"; then DV=yes; elif grep -qiE '^\s*[-*] \[x\] No' <<< "$A"; then DV=no; else DV="not answered"; fi
+          # CodeQL: GitHub's own check on this commit, when the repo has it switched on.
+          codeql() {
+            # A finished check is read by how it ended: one that failed with nothing marked in the changed code did not analyse it.
+            Q=$(gh api "repos/$R/commits/$SHA/check-runs?check_name=CodeQL" --jq '.check_runs[0] | "\(.status) \(.conclusion) \(.output.annotations_count)"' 2> /dev/null || true)
+            case "$Q" in
+              "" | null*) CQ="not set up";;
+              "completed success 0" | "completed neutral 0") CQ="no new alerts";;
+              "completed success "* | "completed neutral "* | "completed failure "*) N=${Q##* }; if [ "$N" = 0 ]; then CQ="failed without marking any code: open the check"; else CQ="$N new alerts in the changed code"; fi;;
+              completed*) CQ="did not finish: $(echo "$Q" | cut -d" " -f2)";;
+              *) CQ="still running";;
+            esac
+          }
+          # Write the comment, or write it again in place.
+          post() {
+            W=("${NOTES[@]}"); case "$CQ" in *" new alerts"*) W+=("CodeQL found $CQ.");; failed* | "did not finish"*) W+=("CodeQL $CQ.");; esac
+            {
+              echo '<!-- pr-report -->'; echo '### Checks'; echo
+              if [ ${#W[@]} -eq 0 ]; then echo 'Nothing needs a look.'; else echo 'Needs a look:'; printf -- '- %s\n' "${W[@]}"; fi
+              echo; echo '| Image | Build | Dockerfile check | Trivy, fixable HIGH or CRITICAL |'; echo '|---|---|---|---|'; printf '%s' "$ROWS"
+              echo; echo '| Check | Result |'; echo '|---|---|'
+              echo "| Lint | $LINT |"; echo "| Tests | $TESTS |"; echo "| CodeQL | $CQ |"; echo "| SonarQube | $SQ |"; echo "| DevOps needed | $DV |"
+              echo; echo "It reports only and blocks nothing. [The ci run]($GITHUB_SERVER_URL/$R/actions/runs/$RUN) for ${SHA::7}."
+            } > body.md
+            gh api "repos/$R/issues/$PR/comments" --paginate --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- pr-report -->"))) | .id' > ids.txt
+            C=$(head -1 ids.txt)
+            if [ -n "$C" ]; then gh api -X PATCH "repos/$R/issues/comments/$C" -F body=@body.md > /dev/null
+            else gh api "repos/$R/issues/$PR/comments" -F body=@body.md > /dev/null; fi
+          }
+          codeql; post
+          # CodeQL often finishes after ci: wait for it, up to 15 minutes, and write the comment again once it has.
+          for _ in $(seq 30); do
+            [ "$CQ" = "still running" ] || break
+            sleep 30; codeql
+            [ "$CQ" = "still running" ] || post
+          done

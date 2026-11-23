@@ -1,0 +1,188 @@
+# Cuts a release: the version you name, holding every pull request merged into development up to the one you name.
+# It checks first that cd has finished and that each image's newest build holds every change to it. Then it tags each
+# image’s build and that merge commit with the version, and writes the release page. promote.yml moves the version
+# through test, prod. When a check fails, nothing is tagged.
+name: release
+run-name: release ${{ inputs.version }} up to #${{ inputs.pr }}
+
+# When it runs: only by hand.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: the version, like 1.1.14
+        required: true
+      pr:
+        description: the last pull request in it, by its number
+        required: true
+
+permissions:
+  contents: read
+
+# One release at a time.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  # Check everything, then tag each image.
+  prepare:
+    runs-on: ubuntu-24.04
+    # The build environment holds BUILDER_TOKEN, which can read and tag the images in tools.
+    environment: build
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: read
+    outputs:
+      commit: ${{ steps.pr.outputs.commit }}
+      last: ${{ steps.pr.outputs.last }}
+      builds: ${{ steps.builds.outputs.builds }}
+      prs: ${{ steps.prs.outputs.prs }}
+      devops: ${{ steps.prs.outputs.devops }}
+    env:
+      V: ${{ inputs.version }}
+      PR: ${{ inputs.pr }}
+      B: development
+      GH_TOKEN: ${{ github.token }}
+      REGISTRY: ${{ secrets.REGISTRY }}
+      IMAGES: ${{ secrets.REGISTRY }}/${{ secrets.REGISTRY_NAMESPACE }}
+    steps:
+      # Get the code with its history and its tags.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { fetch-depth: 0, persist-credentials: false }
+      # The version is new and comes after the last one, and the pull request is merged and comes after it too.
+      - name: the version and the pull request
+        id: pr
+        run: |
+          no() { echo "::error::$1"; exit 1; }
+          [[ "$V" =~ ^[0-9]+(\.[0-9]+){1,3}$ ]] || no "Write the version like 1.1.14."
+          [[ "$PR" =~ ^[0-9]+$ ]] || no "Write the pull request as its number, like 245."
+          M=$(gh pr view "$PR" -R "$GITHUB_REPOSITORY" --json state,baseRefName,mergeCommit --jq 'select(.state == "MERGED" and .baseRefName == env.B) | .mergeCommit.oid')
+          [ -n "$M" ] || no "#$PR is not a pull request merged into $B."
+          ! git rev-parse -q --verify "refs/tags/$V" > /dev/null || no "$V is a tag already. A version is cut once."
+          LAST=$(git tag --list --sort=-v:refname | grep -E '^[0-9]+(\.[0-9]+){1,3}$' | head -1 || true)
+          if [ -n "$LAST" ]; then
+            git merge-base --is-ancestor "$LAST" "$M" || no "$LAST holds changes after #$PR, so a release up to #$PR would go back."
+            [ "$(git rev-parse "$LAST^{commit}")" != "$M" ] || no "Nothing is merged after $LAST up to #$PR."
+            [ "$(printf '%s\n%s\n' "$LAST" "$V" | sort -V | tail -1)" = "$V" ] || no "$V does not come after $LAST."
+          fi
+          { echo "commit=$M"; echo "last=$LAST"; } >> "$GITHUB_OUTPUT"
+      # The pull requests in it, from GitHub's record of each merge since the last release, and those that asked for
+      # DevOps. The first release holds everything before it, so it names only the pull requests that asked for DevOps.
+      - name: the pull requests
+        id: prs
+        env:
+          M: ${{ steps.pr.outputs.commit }}
+          LAST: ${{ steps.pr.outputs.last }}
+        run: |
+          : > list.md; : > devops.md
+          if [ -z "$LAST" ]; then
+            echo "The first release, so it holds everything merged into $B up to #$PR." > list.md
+            gh pr list -R "$GITHUB_REPOSITORY" --state merged --base "$B" --label needs-devops -L 200 --json number,title,mergeCommit --jq '.[] | "\(.mergeCommit.oid) \(.number) \(.title)"' > asked.txt
+            while read -r C N T; do ! git merge-base --is-ancestor "$C" "$M" 2> /dev/null || echo "- #$N $T" >> devops.md; done < asked.txt
+          else
+            for C in $(git rev-list --reverse --first-parent "$LAST..$M"); do
+              gh api "repos/$GITHUB_REPOSITORY/commits/$C/pulls" --jq '[.[] | select(.merged_at != null and .base.ref == env.B)][0] // empty' > p.json
+              if [ ! -s p.json ]; then echo "- $(git log -1 --format='%h %s' "$C"), with no pull request" >> list.md; continue; fi
+              jq -r '"- #\(.number) \(.title), by \(.user.login)"' p.json >> list.md
+              ! jq -e '.labels[] | select(.name == "needs-devops")' p.json > /dev/null || jq -r '"- #\(.number) \(.title)"' p.json >> devops.md
+            done
+          fi
+          E=$(openssl rand -hex 12)
+          { echo "prs<<$E"; cat list.md; echo "$E"; echo "devops<<$E"; cat devops.md; echo "$E"; } >> "$GITHUB_OUTPUT"
+      # Each image's newest build at or before the merge: sha-<commit>, or its newest rebuild. cd must have finished, and
+      # no change to the image may come after its build, or the build would not hold it. A tag of the version already
+      # on another build stops it too. The tags are made only when every image passes.
+      - name: the builds
+        id: builds
+        env:
+          M: ${{ steps.pr.outputs.commit }}
+          LAST: ${{ steps.pr.outputs.last }}
+          BUILDER_TOKEN: ${{ secrets.BUILDER_TOKEN }}
+        run: |
+          no() { echo "::error::$1"; exit 1; }
+          export REGISTRY_AUTH_FILE="$RUNNER_TEMP/auth.json"
+          echo "$BUILDER_TOKEN" | skopeo login -u github-builder --password-stdin "$REGISTRY" > /dev/null
+          gh run list -R "$GITHUB_REPOSITORY" -w cd.yml -b "$B" -L 100 --json headSha,status > runs.json
+          for C in $(git rev-list --first-parent --max-count=100 "${LAST:+$LAST..}$M"); do
+            [ "$(jq --arg c "$C" '[.[] | select(.headSha == $c and .status != "completed")] | length' runs.json)" = 0 ] || no "cd is still running for ${C::7}. Cut the release when it has finished."
+          done
+          # Each commit of development up to the merge, newest first, by its short name: cd tags a build sha-<those 7>.
+          git rev-list --first-parent "$M" | awk '{ print NR, substr($1, 1, 7), $1 }' > order.txt
+          : > builds.txt
+          while read -r I P <&3; do
+            TAGS=$(skopeo list-tags "docker://$IMAGES/$I" | jq -r '.Tags[]') || no "$I has no builds in the registry."
+            # The newest commit with a build, and of its builds the newest rebuild.
+            N=$(echo "$TAGS" | awk 'NR == FNR { if (!($2 in at)) { at[$2] = $1; full[$2] = $3 }; next } /^sha-[0-9a-f]{7}(-r[0-9]+)?$/ && (substr($0, 5, 7) in at) { s = substr($0, 5, 7); r = 0; if (match($0, /-r[0-9]+$/)) r = substr($0, RSTART + 2); print at[s], r, $0, full[s] }' order.txt - | sort -k1,1n -k2,2nr | awk 'NR == 1')
+            [ -n "$N" ] || no "$I has no build at or before #$PR."
+            read -r _ _ T C <<< "$N"
+            # shellcheck disable=SC2086 # P is a list of paths
+            AFTER=$(git log -1 --format=%h "$C..$M" -- $P)
+            [ -z "$AFTER" ] || no "$I changed in $AFTER after its newest build, $T. Rebuild it with cd, then cut the release."
+            D=$(skopeo inspect --format '{{.Digest}}' "docker://$IMAGES/$I:$T")
+            if grep -qxF "$V" <<< "$TAGS"; then [ "$(skopeo inspect --format '{{.Digest}}' "docker://$IMAGES/$I:$V")" = "$D" ] || no "$I has a tag $V on another build."; fi
+            echo "$I $T ${C::7} $D" >> builds.txt
+          done 3<<'PATHS'
+          restitution-api restitution-app Database restitution-app/Dockerfile .dockerignore .github/workflows/cd.yml
+          restitution-ui restitution-app/ClientApp restitution-app/ClientApp/Dockerfile .dockerignore .github/workflows/cd.yml
+          PATHS
+          E=$(openssl rand -hex 12); { echo "builds<<$E"; cat builds.txt; echo "$E"; } >> "$GITHUB_OUTPUT"
+      # Tag each build with the version, by its digest. The image stream in tools gets the same tag.
+      - name: tag the builds
+        run: |
+          export REGISTRY_AUTH_FILE="$RUNNER_TEMP/auth.json"
+          while read -r I _ _ D; do skopeo copy -q --preserve-digests "docker://$IMAGES/$I@$D" "docker://$IMAGES/$I:$V"; done < builds.txt
+
+  # Scan the version. It only reports here: what it finds is what would stop a promote to prod.
+  scan:
+    needs: prepare
+    uses: ./.github/workflows/scan.yml
+    permissions:
+      contents: read
+      issues: write
+    secrets: inherit
+    with:
+      tag: ${{ inputs.version }}
+      images: '["restitution-api","restitution-ui"]'
+
+  # The release page, and the Git tag on the merge commit. It is written even when the scan could not finish.
+  publish:
+    needs: [prepare, scan]
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      V: ${{ inputs.version }}
+      PR: ${{ inputs.pr }}
+      M: ${{ needs.prepare.outputs.commit }}
+      LAST: ${{ needs.prepare.outputs.last }}
+      BUILDS: ${{ needs.prepare.outputs.builds }}
+      PRS: ${{ needs.prepare.outputs.prs }}
+      DEVOPS: ${{ needs.prepare.outputs.devops }}
+      FOUND: ${{ toJSON(needs.scan.outputs) }}
+      SCAN: ${{ needs.scan.result }}
+    steps:
+      - name: the release page
+        run: |
+          {
+            echo "Every pull request merged into development up to #$PR, at ${M::7}.${LAST:+ The release before it is $LAST.}"
+            echo; echo '## Pull requests'; echo "$PRS"
+            echo; echo '## Images'; echo '| Image | Build | Commit |'; echo '|---|---|---|'
+            echo "$BUILDS" | while read -r I T C _; do echo "| $I | $T | $C |"; done
+            echo; echo '## Before prod'; NEED=0
+            [ -z "$DEVOPS" ] || { echo "DevOps work is needed for these pull requests:"; echo "$DEVOPS"; echo; NEED=1; }
+            if [ "$SCAN" != success ] && [ "$SCAN" != failure ]; then echo "- The scan of this version did not finish. promote scans it again before prod."; NEED=1; fi
+            for I in restitution-api restitution-ui; do
+              N=$(echo "$FOUND" | jq -r --arg k "$I-found" '.[$k] // "?"')
+              case "$N" in
+                0) ;;
+                "?") echo "- $I could not be scanned. promote scans it again before prod."; NEED=1;;
+                *) echo "- $I has $N fixable HIGH or CRITICAL that .trivyignore does not hold. A promote to prod stops on it until it is fixed, or accepted in .trivyignore with a date."; NEED=1;;
+              esac
+            done
+            [ "$NEED" = 1 ] || echo "Nothing found that would stop prod."
+          } > notes.md
+          gh release create "$V" -R "$GITHUB_REPOSITORY" --target "$M" --title "$V" --notes-file notes.md
