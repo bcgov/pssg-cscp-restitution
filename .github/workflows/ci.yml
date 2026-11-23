@@ -55,6 +55,7 @@ jobs:
         run: docker build -f ${{ matrix.dockerfile }} -t ${{ matrix.image }}:ci ${{ matrix.args }} ${{ matrix.context }}
       # Scan the image. It reports what it finds and never stops the pull request.
       - name: Trivy
+        id: trivy
         if: steps.changed.outputs.yes == 'true'
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
@@ -84,15 +85,17 @@ jobs:
             [ "$N" -eq 0 ] || { echo "| CVE | Package | Installed | Fixed in | Severity |"; echo "|---|---|---|---|---|"; jq -r '.runs[].results[] | (.message.text | split("\n") | map(capture("^(?<key>[^:]+): (?<value>.*)$")?) | from_entries) as $m | "| \(.ruleId) | \($m.Package) | \($m["Installed Version"]) | \($m["Fixed Version"]) | \($m.Severity) |"' "$F" | sort -u; } | tee -a "$GITHUB_STEP_SUMMARY"
           done
       # Keep what this run found, for the comment on this pull request.
+      # A scan that did not finish is kept as such, never as one that found nothing.
       - name: note what it found
         if: always()
         env:
           IMAGE: ${{ matrix.image }}
           BUILT: ${{ steps.build.outcome }}
+          SCANNED: ${{ steps.trivy.outcome }}
         run: |
           T='[]'; [ ! -f trivy.sarif ] || T=$(jq -c '[.runs[].results[].ruleId] | unique' trivy.sarif)
           H=null; [ ! -f hadolint.json ] || H=$(jq length hadolint.json)
-          jq -n --arg i "$IMAGE" --arg b "$BUILT" --argjson t "$T" --argjson h "$H" '{image: $i, build: $b, trivy: $t, hadolint: $h}' > found.json
+          jq -n --arg i "$IMAGE" --arg b "$BUILT" --arg s "$SCANNED" --argjson t "$T" --argjson h "$H" '{image: $i, build: $b, scan: $s, trivy: $t, hadolint: $h}' > found.json
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:

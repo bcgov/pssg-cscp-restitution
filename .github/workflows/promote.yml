@@ -37,6 +37,12 @@ permissions:
   contents: read
   issues: write
 
+# Two promotes with a version to the same environment never run at once, so every image of one moves before the
+# next starts. A rollback, or a promote with no version, is never held behind one.
+concurrency:
+  group: promote-${{ inputs.version != '' && inputs.to || github.run_id }}
+  cancel-in-progress: false
+
 jobs:
   # The choices are checked first, so no reviewer is asked to approve a promote that cannot work.
   check:
@@ -170,12 +176,19 @@ jobs:
           CLUSTER_SERVER: ${{ secrets.CLUSTER_SERVER }}
           PROMOTER_TOKEN: ${{ secrets.PROMOTER_TOKEN }}
       # With a version, every image moves or none does: each one needs the build the scan read, and the environment
-      # before must still run it. A promote at a set time can wait days, so this is checked again now, before anything moves.
+      # before must still run it, and the version's release page must say it reached there: that line is written only
+      # once a promote there finished and its builds were ready, which a tag alone cannot show. A promote at a set time
+      # can wait days, so this is checked again now, before anything moves.
       - name: every image has this version
         if: inputs.action == 'promote' && env.VERSION != ''
         env:
           SCANNED: ${{ toJSON(needs.scan.outputs) }}
+          GH_TOKEN: ${{ github.token }}
         run: |
+          if [ -n "$SAME" ]; then
+            gh release view "$VERSION" -R "$GITHUB_REPOSITORY" --json body --jq .body 2> /dev/null | grep -qE "^Reached .*\b$SAME\b" ||
+              { echo "::error::The release page of $VERSION does not say it reached $SAME, so nothing moved."; exit 1; }
+          fi
           for I in restitution-api restitution-ui; do
             W=$(echo "$SCANNED" | jq -r --arg i "$I" '.[$i] // empty')
             [ -n "$W" ] || { echo "::error::$I has no build of $VERSION that the scan read, so nothing moved."; exit 1; }

@@ -27,6 +27,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
           BODY: ${{ github.event.pull_request.body }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
         run: |
           A=$(printf '%s' "$BODY" | tr -d '\r' | sed -n '/Does DevOps need/,$p')
           if grep -qiE '^\s*[-*] \[x\] Yes' <<< "$A"; then
@@ -35,6 +36,12 @@ jobs:
           elif grep -qiE '^\s*[-*] \[x\] No' <<< "$A"; then
             gh api -X DELETE "repos/$GITHUB_REPOSITORY/issues/$PR/labels/needs-devops" > /dev/null 2>&1 || true
           fi
+          # A description edited after ci: the comment's DevOps row takes the new answer too. Dependabot's count as No.
+          if [ "$AUTHOR" = 'dependabot[bot]' ]; then DV=no; elif grep -qiE '^\s*[-*] \[x\] Yes' <<< "$A"; then DV=yes; elif grep -qiE '^\s*[-*] \[x\] No' <<< "$A"; then DV=no; else DV="not answered"; fi
+          C=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- pr-report -->"))) | .id' | head -1)
+          [ -n "$C" ] || exit 0
+          gh api "repos/$GITHUB_REPOSITORY/issues/comments/$C" --jq .body | sed -E "s/^\| DevOps needed \| .* \|$/| DevOps needed | $DV |/" > body.md
+          gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$C" -F body=@body.md > /dev/null
 
   # The comment. It runs after ci, in this repo's own context, and reads only what ci kept: IDs, counts and results.
   report:
@@ -77,7 +84,10 @@ jobs:
             case "$(jq -r .build "$F" 2> /dev/null)" in success) B=built;; skipped) B="not touched";; failure) B=failed; NOTES+=("The build of $I failed.");; *) B="did not finish";; esac
             H=$(jq -r '.hadolint | numbers' "$F" 2> /dev/null || true); [ -z "$H" ] || H="$H findings"
             T=""
-            if [ "$B" = built ]; then
+            SC=$(jq -r '.scan // "success"' "$F" 2> /dev/null || true)
+            if [ "$B" = built ] && [ "$SC" != success ]; then
+              T="not scanned"; NOTES+=("Trivy did not finish scanning $I, so what it holds is not known.")
+            elif [ "$B" = built ]; then
               { jq -r '.trivy[]' "$F" 2> /dev/null || true; } | ID | sort -u > pr.txt
               # dev's findings: the newest scan cd kept for this image, from a run of this repo's development, never from a fork.
               A=$(gh api "repos/$R/actions/artifacts?name=dev-$I&per_page=30" --jq '[.artifacts[] | select((.expired | not) and .workflow_run.head_branch == env.BASE and .workflow_run.head_repository_id == .workflow_run.repository_id)][0].workflow_run.id // empty')
@@ -107,17 +117,25 @@ jobs:
           elif [ "$AUTHOR" = 'dependabot[bot]' ] || [ "$(jq -r .head.repo.full_name pr.json)" != "$R" ]; then SQ="not run for Dependabot or a fork"
           elif [ -z "$SONAR_URL" ]; then SQ="not set up"
           else SQ="did not run"; fi
+          case "$SQ" in "gate failed"*) NOTES+=("SonarQube's quality gate failed.");; esac
           # The DevOps question. Dependabot's pull requests count as No.
           BODY=$(jq -r '.body // ""' pr.json); A=$(printf '%s' "$BODY" | tr -d '\r' | sed -n '/Does DevOps need/,$p')
           if [ "$AUTHOR" = 'dependabot[bot]' ]; then DV=no; elif grep -qiE '^\s*[-*] \[x\] Yes' <<< "$A"; then DV=yes; elif grep -qiE '^\s*[-*] \[x\] No' <<< "$A"; then DV=no; else DV="not answered"; fi
           # CodeQL: GitHub's own check on this commit, when the repo has it switched on.
           codeql() {
-            Q=$(gh api "repos/$R/commits/$SHA/check-runs?check_name=CodeQL" --jq '.check_runs[0] | "\(.status) \(.output.annotations_count)"' 2> /dev/null || true)
-            case "$Q" in "" | null*) CQ="not set up";; "completed 0") CQ="no new alerts";; completed*) CQ="${Q#* } new alerts in the changed code";; *) CQ="still running";; esac
+            # A finished check is read by how it ended: one that failed with nothing marked in the changed code did not analyse it.
+            Q=$(gh api "repos/$R/commits/$SHA/check-runs?check_name=CodeQL" --jq '.check_runs[0] | "\(.status) \(.conclusion) \(.output.annotations_count)"' 2> /dev/null || true)
+            case "$Q" in
+              "" | null*) CQ="not set up";;
+              "completed success 0" | "completed neutral 0") CQ="no new alerts";;
+              "completed success "* | "completed neutral "* | "completed failure "*) N=${Q##* }; if [ "$N" = 0 ]; then CQ="failed without marking any code: open the check"; else CQ="$N new alerts in the changed code"; fi;;
+              completed*) CQ="did not finish: $(echo "$Q" | cut -d" " -f2)";;
+              *) CQ="still running";;
+            esac
           }
           # Write the comment, or write it again in place.
           post() {
-            W=("${NOTES[@]}"); case "$CQ" in *" new alerts"*) W+=("CodeQL found $CQ.");; esac
+            W=("${NOTES[@]}"); case "$CQ" in *" new alerts"*) W+=("CodeQL found $CQ.");; failed* | "did not finish"*) W+=("CodeQL $CQ.");; esac
             {
               echo '<!-- pr-report -->'; echo '### Checks'; echo
               if [ ${#W[@]} -eq 0 ]; then echo 'Nothing needs a look.'; else echo 'Needs a look:'; printf -- '- %s\n' "${W[@]}"; fi

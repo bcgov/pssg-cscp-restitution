@@ -150,12 +150,19 @@ jobs:
           output: trivy-npm.sarif
           limit-severities-for-sarif: true
           exit-code: ${{ inputs.stop && '1' || '0' }}
-      # How many findings would stop prod: each weakness once, in the image and its npm packages. ? when it was not scanned.
+      # How many findings would stop prod: each weakness once, in the image and its npm packages. ? when any part of the
+      # scan did not finish, so the release page never says nothing would stop prod for a scan that was not whole.
       - name: count
         id: count
         if: always() && steps.pull.outputs.there == 'true'
+        env:
+          NPM: ${{ steps.npm.outcome }}
+          FOUND: ${{ steps.npm.outputs.found }}
         run: |
-          N='?'; [ ! -f trivy.sarif ] || N=$(jq -s '[.[].runs[].results[].ruleId] | unique | length' trivy*.sarif)
+          N='?'
+          if [ -f trivy.sarif ] && [ "$NPM" != failure ] && { [ "$FOUND" != true ] || [ -f trivy-npm.sarif ]; }; then
+            N=$(jq -s '[.[].runs[].results[].ruleId] | unique | length' trivy*.sarif)
+          fi
           echo "$NAME=$N" >> "$GITHUB_OUTPUT"
       # Put what Trivy found on the run's Summary, as a table. It changes nothing else.
       - name: findings on the summary
@@ -170,9 +177,9 @@ jobs:
             [ "$N" -eq 0 ] || { echo "| CVE | Package | Installed | Fixed in | Severity |"; echo "|---|---|---|---|---|"; jq -r '.runs[].results[] | (.message.text | split("\n") | map(capture("^(?<key>[^:]+): (?<value>.*)$")?) | from_entries) as $m | "| \(.ruleId) | \($m.Package) | \($m["Installed Version"]) | \($m["Fixed Version"]) | \($m.Severity) |"' "$F" | sort -u; } | tee -a "$GITHUB_STEP_SUMMARY"
           done
       # One issue per image for its fixable HIGH and CRITICAL: each scan that ran to the end adds its count, and one that
-      # finds none closes it. A scan that failed counts nothing here; the step below opens its own issue.
+      # finds none closes it. A scan that failed counts nothing here, nor one whose npm packages were not scanned; the step below opens its own issue.
       - name: its issue
-        if: always() && inputs.tag == '' && steps.trivy.outcome == 'success' && hashFiles('trivy.sarif') != ''
+        if: always() && inputs.tag == '' && steps.trivy.outcome == 'success' && hashFiles('trivy.sarif') != '' && steps.npm.outcome != 'failure' && (steps.npm.outputs.found != 'true' || hashFiles('trivy-npm.sarif') != '')
         env:
           GH_TOKEN: ${{ github.token }}
           IMAGE: ${{ matrix.image }}
