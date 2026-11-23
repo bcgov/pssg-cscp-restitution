@@ -18,8 +18,5 @@
 - [ ] A database change is in this pull request as a script or migration, and says whether it can be undone.
 
 ## Does DevOps need to set up, change or add anything in the cluster?
-<!-- Tick Yes and say what above when it needs: a new or changed setting or secret, and in which environments;
-     a new service, route, volume or scheduled job; a database change run in test and prod; or anything else in
-     OpenShift. DevOps reaches out. Tick one. -->
 - [ ] No
 - [ ] Yes
